@@ -1,5 +1,6 @@
-import { CGFscene, CGFcamera, CGFaxis } from "../lib/CGF.js";
+import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
+import { MySphere } from "./MySphere.js";
 
 /**
  * MyScene
@@ -30,6 +31,23 @@ export class MyScene extends CGFscene {
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
     this.plane = new MyPlane(this, 64);
+    this.sphere = new MySphere(this, 64, 32);
+
+    // Load grass texture
+    this.grassTexture = new CGFtexture(this, 'images/grass.jpg');
+    this.planeMaterial = new CGFappearance(this);
+    this.planeMaterial.setTexture(this.grassTexture);
+    this.planeMaterial.setTextureWrap('REPEAT', 'REPEAT');
+
+    // Load sphere texture
+    this.sphereTexture = new CGFtexture(this, 'images/earth.jpg');
+    this.sphereMaterial = new CGFappearance(this);
+    this.sphereMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+    this.sphereMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
+    this.sphereMaterial.setSpecular(0.1, 0.1, 0.1, 1);
+    this.sphereMaterial.setShininess(10.0);
+    this.sphereMaterial.setTexture(this.sphereTexture);
+    this.sphereMaterial.setTextureWrap('REPEAT', 'REPEAT');
   }
   initLights() {
     this.lights[0].setPosition(200, 200, 200, 1);
@@ -90,8 +108,17 @@ export class MyScene extends CGFscene {
 
     this.setDefaultAppearance();
 
+    this.pushMatrix();
+    this.planeMaterial.apply(); 
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
     this.plane.display();
+    this.popMatrix();
+
+    this.pushMatrix();
+    this.sphereMaterial.apply();
+    this.scale(200, 200, 200);
+    this.sphere.display();
+    this.popMatrix();
   }
 }
