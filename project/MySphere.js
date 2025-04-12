@@ -1,10 +1,11 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MySphere extends CGFobject {
-    constructor(scene, slices, stacks) {
+    constructor(scene, slices, stacks, reverse = false) {
         super(scene);
         this.slices = slices;
         this.stacks = stacks;
+        this.reverse = reverse; // New parameter to control face inversion
         this.initBuffers();
     }
 
@@ -42,19 +43,21 @@ export class MySphere extends CGFobject {
                 const first = stack * (this.slices + 1) + slice;
                 const second = first + this.slices + 1;
 
-                if (stack === 0) {
-                    // South pole triangle — ensure CCW
-                    this.indices.push(first, second, second + 1);
-                } else if (stack === 2 * this.stacks - 1) {
-                    // North pole triangle — ensure CCW
-                    this.indices.push(first, second, first + 1);
+                if (this.reverse) {
+                    // Reverse the order of indices for inverted faces
+                    this.indices.push(first, second + 1, second);
+                    this.indices.push(first, first + 1, second + 1);
                 } else {
                     // Two triangles per quad — CCW
                     this.indices.push(first, second, second + 1);
                     this.indices.push(first, second + 1, first + 1);
                 }
-                
             }
+        }
+
+        if (this.reverse) {
+            // Reverse normals for inverted faces
+            this.normals = this.normals.map(n => -n);
         }
 
         this.primitiveType = this.scene.gl.TRIANGLES;

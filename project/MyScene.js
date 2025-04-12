@@ -1,20 +1,23 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
+import { MyPanorama } from './MyPanorama.js';
 
 /**
  * MyScene
  * @constructor
  */
 export class MyScene extends CGFscene {
-  constructor() {
+  constructor(myInterface) {
     super();
+    this.interface = myInterface;
   }
   init(application) {
     super.init(application);
 
     this.initCameras();
     this.initLights();
+    this.initMaterials();
 
     //Background color
     this.gl.clearColor(0, 0, 0, 1.0);
@@ -32,29 +35,21 @@ export class MyScene extends CGFscene {
     this.axis = new CGFaxis(this, 20, 1);
     this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 64, 32);
+    this.sphereVisible = true;
 
-    // Load grass texture
-    this.grassTexture = new CGFtexture(this, 'images/grass.jpg');
-    this.planeMaterial = new CGFappearance(this);
-    this.planeMaterial.setTexture(this.grassTexture);
-    this.planeMaterial.setTextureWrap('REPEAT', 'REPEAT');
-
-    // Load sphere texture
-    this.sphereTexture = new CGFtexture(this, 'images/earth.jpg');
-    this.sphereMaterial = new CGFappearance(this);
-    this.sphereMaterial.setAmbient(0.1, 0.1, 0.1, 1);
-    this.sphereMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
-    this.sphereMaterial.setSpecular(0.1, 0.1, 0.1, 1);
-    this.sphereMaterial.setShininess(10.0);
-    this.sphereMaterial.setTexture(this.sphereTexture);
-    this.sphereMaterial.setTextureWrap('REPEAT', 'REPEAT');
+    this.displayAxis = true;
+    this.scaleFactor = 1.0;
+    this.scaleFactorSpeed = 1.0;
   }
+
   initLights() {
+    this.setGlobalAmbientLight(0.5, 0.5, 0.5, 1.0);
     this.lights[0].setPosition(200, 200, 200, 1);
     this.lights[0].setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.lights[0].enable();
     this.lights[0].update();
   }
+
   initCameras() {
     this.camera = new CGFcamera(
       0.4,
@@ -64,6 +59,29 @@ export class MyScene extends CGFscene {
       vec3.fromValues(0, 0, 0)
     );
   }
+  
+  initMaterials() {
+    // Load grass texture
+    this.grassTexture = new CGFtexture(this, 'images/grass.jpg');
+    this.planeMaterial = new CGFappearance(this);
+    this.planeMaterial.setTexture(this.grassTexture);
+    this.planeMaterial.setTextureWrap('REPEAT', 'REPEAT');
+
+    // Load sphere texture
+    this.sphereMaterial = new CGFappearance(this);
+    this.sphereTexture = new CGFtexture(this, 'images/earth.jpg');
+    this.sphereMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+    this.sphereMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
+    this.sphereMaterial.setSpecular(0.1, 0.1, 0.1, 1);
+    this.sphereMaterial.setShininess(10.0);
+    this.sphereMaterial.setTexture(this.sphereTexture);
+    this.sphereMaterial.setTextureWrap('REPEAT', 'REPEAT');
+
+    // Load panorama texture and create MyPanorama
+    this.panoramaTexture = new CGFtexture(this, 'images/landscape.jpg');
+    this.panorama = new MyPanorama(this, this.panoramaTexture);
+  }
+
   checkKeys() {
     var text = "Keys pressed: ";
     var keysPressed = false;
@@ -92,6 +110,7 @@ export class MyScene extends CGFscene {
     this.setSpecular(0.5, 0.5, 0.5, 1.0);
     this.setShininess(10.0);
   }
+
   display() {
     // ---- BEGIN Background, camera and axis setup
     // Clear image and depth buffer everytime we update the scene
@@ -103,10 +122,14 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Draw axis
-    this.axis.display();
-
+    // Display panorama
+    this.panorama.display();
     this.setDefaultAppearance();
+
+    // Draw axis  
+    if (this.displayAxis) {
+      this.axis.display();
+    }
 
     this.pushMatrix();
     this.planeMaterial.apply(); 
@@ -120,5 +143,6 @@ export class MyScene extends CGFscene {
     this.scale(200, 200, 200);
     this.sphere.display();
     this.popMatrix();
+
   }
 }
