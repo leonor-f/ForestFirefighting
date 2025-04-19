@@ -17,6 +17,18 @@ export class MyInterface extends CGFinterface {
         // https://github.com/dataarts/dat.gui/blob/master/API.md
         this.gui = new dat.GUI();
 
+        //Checkbox element in GUI
+        this.gui.add(this.scene, 'displayAxis').name('Display Axis');
+
+        //Checkbox to control the Sphere Visibility
+        this.gui.add(this.scene,'displaySphere').name('Outer Sphere');
+
+        //Checkbox to control the Plain Visibility
+        this.gui.add(this.scene, 'displayPlain').name('Plain');
+
+        //Checkbox to control the Panorama Visibility
+        this.gui.add(this.scene, 'displayPanorama').name('Panorama');
+
         this.initKeys();
 
         return true;

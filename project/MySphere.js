@@ -1,11 +1,12 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MySphere extends CGFobject {
-    constructor(scene, slices, stacks, reverse = false) {
+    constructor(scene, slices, stacks, radius, reverse = false) {
         super(scene);
         this.slices = slices;
         this.stacks = stacks;
-        this.reverse = reverse; // New parameter to control face inversion
+        this.reverse = reverse;
+        this.radius = radius || 1; 
         this.initBuffers();
     }
 
@@ -15,15 +16,14 @@ export class MySphere extends CGFobject {
         this.normals = [];
         this.texCoords = [];
 
-        const radius = 1;
         const pi = Math.PI;
         const dTheta = 2 * pi / this.slices;
         const dPhi = pi / (2 * this.stacks);
 
         for (let stack = -this.stacks; stack <= this.stacks; ++stack) {
             const phi = stack * dPhi;
-            const y = radius * Math.sin(phi);
-            const r = radius * Math.cos(phi);
+            const y = this.radius * Math.sin(phi);
+            const r = this.radius * Math.cos(phi);
 
             for (let slice = 0; slice <= this.slices; ++slice) {
                 const theta = slice * dTheta;

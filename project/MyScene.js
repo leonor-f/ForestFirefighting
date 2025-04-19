@@ -37,7 +37,10 @@ export class MyScene extends CGFscene {
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
 
-    this.displayAxis = true;
+    this.displayAxis = false;
+    this.displaySphere = false;
+    this.displayPlain = true;
+    this.displayPanorama = true;
     this.scaleFactor = 1.0;
     this.scaleFactorSpeed = 1.0;
   }
@@ -52,10 +55,10 @@ export class MyScene extends CGFscene {
 
   initCameras() {
     this.camera = new CGFcamera(
-      0.4,
+      0.8,
       0.1,
       1000,
-      vec3.fromValues(200, 200, 200),
+      vec3.fromValues(0, 100, 100),
       vec3.fromValues(0, 0, 0)
     );
   }
@@ -122,27 +125,30 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Display panorama
-    this.panorama.display();
     this.setDefaultAppearance();
 
     // Draw axis  
     if (this.displayAxis) {
       this.axis.display();
     }
-
-    this.pushMatrix();
-    this.planeMaterial.apply(); 
-    this.scale(400, 1, 400);
-    this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.plane.display();
-    this.popMatrix();
-
+    
+    if(this.displayPanorama) {
+      this.panorama.display();
+    }
+    if (this.displayPlain) {
+      this.pushMatrix();
+      this.planeMaterial.apply(); 
+      this.scale(400, 1, 400);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.plane.display();
+      this.popMatrix();
+    }
+    if (this.displaySphere) {
     this.pushMatrix();
     this.sphereMaterial.apply();
     this.scale(200, 200, 200);
     this.sphere.display();
     this.popMatrix();
-
+    }
   }
 }
