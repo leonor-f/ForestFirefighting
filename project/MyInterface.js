@@ -29,6 +29,9 @@ export class MyInterface extends CGFinterface {
         //Checkbox to control the Panorama Visibility
         this.gui.add(this.scene, 'displayPanorama').name('Panorama');
 
+        //Checkbox to control the Building Visibility
+        this.gui.add(this.scene, 'displayBuilding').name('Display Building');
+
         this.initKeys();
 
         return true;

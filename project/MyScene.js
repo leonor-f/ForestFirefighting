@@ -2,6 +2,7 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from './MyPanorama.js';
+import { MyBuilding } from './MyBuilding.js';
 
 /**
  * MyScene
@@ -36,11 +37,13 @@ export class MyScene extends CGFscene {
     this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
+    this.building = new MyBuilding(this, 90, 8, 5, 'images/window.png', [0.8, 0.8, 0.8]);
 
     this.displayAxis = false;
     this.displaySphere = false;
     this.displayPlain = true;
     this.displayPanorama = true;
+    this.displayBuilding = true;
     this.scaleFactor = 1.0;
     this.scaleFactorSpeed = 1.0;
   }
@@ -144,11 +147,17 @@ export class MyScene extends CGFscene {
       this.popMatrix();
     }
     if (this.displaySphere) {
-    this.pushMatrix();
-    this.sphereMaterial.apply();
-    this.scale(200, 200, 200);
-    this.sphere.display();
-    this.popMatrix();
+      this.pushMatrix();
+      this.sphereMaterial.apply();
+      this.scale(200, 200, 200);
+      this.sphere.display();
+      this.popMatrix();
+    }
+    if (this.displayBuilding) {
+      this.pushMatrix();
+      this.translate(-100, 1.5, -150);
+      this.building.display();
+      this.popMatrix();
     }
   }
 }
