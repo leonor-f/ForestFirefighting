@@ -1,6 +1,7 @@
 import { CGFobject, CGFappearance, CGFtexture } from '../lib/CGF.js';
 import { MyPlane } from './MyPlane.js';
 import { MyWindow } from './MyWindow.js';
+import { MyCircle } from './MyCircle.js';
 
 export class MyBuilding extends CGFobject {
     constructor(scene, width, floors, windowsPerFloor, windowTexture, color) {
@@ -16,7 +17,7 @@ export class MyBuilding extends CGFobject {
         this.centralWidth = width / 2;
         this.lateralWidth = this.centralWidth * 0.75;
         this.lateralFloors = floors - 1;
-        this.floorHeight = 3.0;
+        this.floorHeight = 10;
         this.depth = this.centralWidth * 0.75;
 
         // Materiais
@@ -35,6 +36,7 @@ export class MyBuilding extends CGFobject {
         // Objetos
         this.window = new MyWindow(scene, windowTexture);
         this.plane = new MyPlane(scene, 1);
+        this.circle = new MyCircle(scene, 40);
     }
 
     displayModule(width, floors, hasGroundFloorWindows = true) {
@@ -55,10 +57,10 @@ export class MyBuilding extends CGFobject {
                 this.scene.pushMatrix();
                 this.scene.translate(
                     -width / 2 + spacing * (i + 1),
-                    floor * this.floorHeight + this.floorHeight / 2,
+                    floor * this.floorHeight - this.floorHeight,
                     0.02
                 );
-                this.scene.scale(0.8, 1, 1);
+                this.scene.scale(6, 6, 1);
                 this.window.display();
                 this.scene.popMatrix();
             }
@@ -68,7 +70,7 @@ export class MyBuilding extends CGFobject {
         if (!hasGroundFloorWindows) {
             // Porta
             this.scene.pushMatrix();
-            this.scene.translate(0, this.floorHeight / 2, 0.02);
+            this.scene.translate(0, -width / 2.7, 0.02);
             this.scene.scale(width / 4, this.floorHeight, 1);
             this.doorMaterial.apply();
             this.plane.display();
@@ -76,8 +78,8 @@ export class MyBuilding extends CGFobject {
 
             // Letreiro "BOMBEIROS"
             this.scene.pushMatrix();
-            this.scene.translate(0, this.floorHeight * 1.75, 0.02);
-            this.scene.scale(width / 2, this.floorHeight / 2, 1);
+            this.scene.translate(0, -this.floorHeight + this.floorHeight / 3, 0.02);
+            this.scene.scale(width / 2, this.floorHeight / 2, 2);
             this.signMaterial.apply();
             this.plane.display();
             this.scene.popMatrix();
@@ -146,9 +148,8 @@ export class MyBuilding extends CGFobject {
         this.scene.pushMatrix();
         this.scene.translate(0, this.floors * this.floorHeight + 0.01, centerZ);
         this.scene.scale(this.centralWidth / 2, 1, this.centralWidth / 2);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
         this.helipadMaterial.apply();
-        this.plane.display();
+        this.circle.display();
         this.scene.popMatrix();
     }
 }
