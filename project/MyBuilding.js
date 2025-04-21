@@ -146,8 +146,8 @@ export class MyBuilding extends CGFobject {
 
         // Heliporto
         this.scene.pushMatrix();
-        this.scene.translate(0, this.floors * this.floorHeight + 0.01, centerZ);
-        this.scene.scale(this.centralWidth / 2, 1, this.centralWidth / 2);
+        this.scene.translate(0, this.floors * this.floorHeight + 0.01, centerZ - this.depth / 4);
+        this.scene.scale(this.centralWidth / 5.5, 1, this.centralWidth / 5.5);
         this.helipadMaterial.apply();
         this.circle.display();
         this.scene.popMatrix();
