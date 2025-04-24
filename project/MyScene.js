@@ -37,7 +37,8 @@ export class MyScene extends CGFscene {
     this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
-    this.building = new MyBuilding(this, 80, 4, 2, 'images/window.png', [0.8, 0.8, 0.8]);
+    this.numFloors = 3;
+    this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.8, 0.8, 0.8]);
 
     this.displayAxis = false;
     this.displaySphere = false;
@@ -60,9 +61,9 @@ export class MyScene extends CGFscene {
     this.camera = new CGFcamera(
       0.8,
       0.1,
-      1000,
-      vec3.fromValues(0, 100, 100),
-      vec3.fromValues(0, 0, 0)
+      500,
+      vec3.fromValues(0, 100, 150),
+      vec3.fromValues(0, 30, 0)
     );
   }
   
@@ -155,7 +156,7 @@ export class MyScene extends CGFscene {
     }
     if (this.displayBuilding) {
       this.pushMatrix();
-      this.translate(-100, 1.5, -150);
+      this.translate(0, 1.5, 0);
       this.building.display();
       this.popMatrix();
     }

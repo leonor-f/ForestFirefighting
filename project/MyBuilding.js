@@ -9,15 +9,15 @@ export class MyBuilding extends CGFobject {
 
         this.scene = scene;
         this.width = width;
-        this.floors = floors;
+        this.lateralFloors = floors;
+        this.centralFloors = floors + 1;
         this.windowsPerFloor = windowsPerFloor;
         this.color = color;
 
         // Dimensões dos módulos
-        this.centralWidth = width / 2;
+        this.centralWidth = width * 0.4;
         this.lateralWidth = this.centralWidth * 0.75;
-        this.lateralFloors = floors - 1;
-        this.floorHeight = 10;
+        this.floorHeight = 12;
         this.depth = this.centralWidth * 0.75;
 
         // Materiais
@@ -40,15 +40,56 @@ export class MyBuilding extends CGFobject {
     }
 
     displayModule(width, floors, hasGroundFloorWindows = true) {
+        const depth = this.depth;
+        const floorHeight = this.floorHeight;
+        const totalHeight = floors * floorHeight;
         const spacing = width / (this.windowsPerFloor + 1);
 
         // Parede frontal
         this.wallMaterial.apply();
         this.scene.pushMatrix();
-        this.scene.scale(width, floors * this.floorHeight, 1);
+        this.scene.translate(0, totalHeight/2, 0);
+        this.scene.scale(width, totalHeight, 1);
         this.plane.display();
         this.scene.popMatrix();
 
+        // Parede traseira
+        this.wallMaterial.apply();
+        this.scene.pushMatrix();
+        this.scene.translate(0, totalHeight/2, -depth);
+        this.scene.scale(width, totalHeight, 1);
+        this.scene.rotate(Math.PI, 0, 1, 0);
+        this.plane.display();
+        this.scene.popMatrix();
+
+        // Laterais
+        const sides = [-1, 1];
+        for (let s of sides) {
+            this.scene.pushMatrix();
+            this.scene.translate(s * width/2, totalHeight/2, -depth/2);
+            this.scene.rotate(s * Math.PI/2, 0, 1, 0);
+            this.scene.scale(depth, totalHeight, 1);
+            this.plane.display();
+            this.scene.popMatrix();
+        }
+
+        // Telhado
+        this.scene.pushMatrix();
+        this.scene.translate(0, totalHeight, -depth/2);
+        this.scene.scale(width, 1, depth);
+        this.scene.rotate(-Math.PI/2, 1, 0, 0);
+        this.wallMaterial.apply();
+        this.plane.display();
+        this.scene.popMatrix();
+
+        // Piso
+        this.scene.pushMatrix();
+        this.scene.translate(0, 0, -depth/2);
+        this.scene.scale(width, 1, depth);
+        this.scene.rotate(-Math.PI/2, 1, 0, 0);
+        this.plane.display();
+        this.scene.popMatrix();
+        
         // Janelas
         for (let floor = 0; floor < floors; floor++) {
             if (floor === 0 && !hasGroundFloorWindows) continue;
@@ -57,7 +98,7 @@ export class MyBuilding extends CGFobject {
                 this.scene.pushMatrix();
                 this.scene.translate(
                     -width / 2 + spacing * (i + 1),
-                    floor * this.floorHeight - this.floorHeight,
+                    floor * floorHeight + floorHeight/2,
                     0.02
                 );
                 this.scene.scale(6, 6, 1);
@@ -70,86 +111,54 @@ export class MyBuilding extends CGFobject {
         if (!hasGroundFloorWindows) {
             // Porta
             this.scene.pushMatrix();
-            this.scene.translate(0, -width / 2.7, 0.02);
-            this.scene.scale(width / 4, this.floorHeight, 1);
+            this.scene.translate(0, floorHeight/2-1, 0.01);
+            this.scene.scale(width * 0.25, floorHeight * 0.8, 1);
             this.doorMaterial.apply();
             this.plane.display();
             this.scene.popMatrix();
 
             // Letreiro "BOMBEIROS"
             this.scene.pushMatrix();
-            this.scene.translate(0, -this.floorHeight + this.floorHeight / 3, 0.02);
-            this.scene.scale(width / 2, this.floorHeight / 2, 2);
+            this.scene.translate(0, floorHeight, 0.01);
+            this.scene.scale(width * 0.6, floorHeight * 0.25, 1);
             this.signMaterial.apply();
             this.plane.display();
             this.scene.popMatrix();
         }
 
-        // Parede traseira
-        this.wallMaterial.apply();
-        this.scene.pushMatrix();
-        this.scene.translate(0, floors * this.floorHeight / 2, -this.depth);
-        this.scene.scale(width, floors * this.floorHeight, 1);
-        this.scene.rotate(Math.PI, 0, 1, 0);
-        this.plane.display();
-        this.scene.popMatrix();
-
-        // Laterais
-        const sides = [-1, 1];
-        for (let s of sides) {
+        // Heliporto
+        if (floors === this.centralFloors) {
             this.scene.pushMatrix();
-            this.scene.translate(s * width / 2, floors * this.floorHeight / 2, -this.depth / 2);
-            this.scene.scale(this.depth, floors * this.floorHeight, 1);
-            this.scene.rotate(s * Math.PI / 2, 0, 1, 0);
-            this.plane.display();
+            this.scene.translate(0, totalHeight + 0.1, -depth/2);
+            this.scene.scale(width * 0.2, 1, width * 0.2);
+            this.helipadMaterial.apply();
+            this.circle.display();
             this.scene.popMatrix();
         }
-
-        // Telhado
-        this.scene.pushMatrix();
-        this.scene.translate(0, floors * this.floorHeight, -this.depth / 2);
-        this.scene.scale(width, this.depth, 1);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
-        this.wallMaterial.apply();
-        this.plane.display();
-        this.scene.popMatrix();
     }
 
     display() {
-        const centerZ = 0;
-
         // Módulo esquerdo
         this.scene.pushMatrix();
         this.scene.translate(
             -this.centralWidth / 2 - this.lateralWidth / 2,
-            this.lateralFloors * this.floorHeight / 2,
-            centerZ
+            0,
+            0
         );
         this.displayModule(this.lateralWidth, this.lateralFloors);
         this.scene.popMatrix();
 
         // Módulo central
-        this.scene.pushMatrix();
-        this.scene.translate(0, this.floors * this.floorHeight / 2, centerZ);
-        this.displayModule(this.centralWidth, this.floors, false);
-        this.scene.popMatrix();
+        this.displayModule(this.centralWidth, this.centralFloors, false);
 
         // Módulo direito
         this.scene.pushMatrix();
         this.scene.translate(
             this.centralWidth / 2 + this.lateralWidth / 2,
-            this.lateralFloors * this.floorHeight / 2,
-            centerZ
+            0,
+            0
         );
         this.displayModule(this.lateralWidth, this.lateralFloors);
-        this.scene.popMatrix();
-
-        // Heliporto
-        this.scene.pushMatrix();
-        this.scene.translate(0, this.floors * this.floorHeight + 0.01, centerZ - this.depth / 4);
-        this.scene.scale(this.centralWidth / 5.5, 1, this.centralWidth / 5.5);
-        this.helipadMaterial.apply();
-        this.circle.display();
         this.scene.popMatrix();
     }
 }

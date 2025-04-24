@@ -32,6 +32,13 @@ export class MyInterface extends CGFinterface {
         //Checkbox to control the Building Visibility
         this.gui.add(this.scene, 'displayBuilding').name('Display Building');
 
+        //Slider to control the Number of Floors
+        this.gui.add(this.scene, 'numFloors', 1, 10).name('Floors').step(1).onChange((value) => {
+            this.scene.building.lateralFloors = value;
+            this.scene.building.centralFloors = value + 1;
+        }
+        );
+
         this.initKeys();
 
         return true;
