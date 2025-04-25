@@ -120,7 +120,7 @@ export class MyBuilding extends CGFobject {
             // Letreiro "BOMBEIROS"
             this.scene.pushMatrix();
             this.scene.translate(0, floorHeight, 0.01);
-            this.scene.scale(width * 0.6, floorHeight * 0.25, 1);
+            this.scene.scale(width * 0.5, floorHeight * 0.25, 1);
             this.signMaterial.apply();
             this.plane.display();
             this.scene.popMatrix();

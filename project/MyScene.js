@@ -38,7 +38,7 @@ export class MyScene extends CGFscene {
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
     this.numFloors = 3;
-    this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.8, 0.8, 0.8]);
+    this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
 
     this.displayAxis = false;
     this.displaySphere = false;
