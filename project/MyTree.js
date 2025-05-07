@@ -1,6 +1,7 @@
 import { CGFobject, CGFappearance, CGFtexture } from '../lib/CGF.js';
 import { MyCylinder } from './MyCylinder.js';
 import { MyPyramid } from './MyPyramid.js';
+import { MyCircle } from './MyCircle.js';
 
 export class MyTree extends CGFobject {
     /**
@@ -36,6 +37,9 @@ export class MyTree extends CGFobject {
             this.pyramids.push(new MyPyramid(scene, 4, 4));
         }
         
+        // Initialize shadow circle
+        this.shadowCircle = new MyCircle(scene, 32); // 32 slices for smoothness
+
         // Initialize materials
         this.initMaterials();
     }
@@ -65,13 +69,13 @@ export class MyTree extends CGFobject {
         this.foliageMaterial.setTexture(this.foliageTexture);
         this.foliageMaterial.setTextureWrap('REPEAT', 'REPEAT');
         
-        // Shadow material (semi-transparent black)
+        // Shadow material (gradient texture)
         this.shadowMaterial = new CGFappearance(this.scene);
-        this.shadowMaterial.setAmbient(0.1, 0.1, 0.1, 0.5);
-        this.shadowMaterial.setDiffuse(0.1, 0.1, 0.1, 0.5);
-        this.shadowMaterial.setSpecular(0, 0, 0, 0);
-        this.shadowMaterial.setEmission(0, 0, 0, 0.5);
-        this.shadowMaterial.setShininess(1.0);
+
+        // Load shadow texture
+        this.shadowTexture = new CGFtexture(this.scene, 'images/shadow.png');
+        this.shadowMaterial.setTexture(this.shadowTexture);
+        this.shadowMaterial.setTextureWrap('REPEAT', 'REPEAT');
     }
     
     display() {
@@ -121,17 +125,25 @@ export class MyTree extends CGFobject {
     
     displayShadow() {
         this.scene.pushMatrix();
+
+        // Enable blending for transparency
+        this.scene.gl.enable(this.scene.gl.BLEND);
+        this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
+
         this.shadowMaterial.apply();
 
         // Position shadow on the ground
-        this.scene.translate(0, 0, 0.01); // Slightly above ground to avoid z-fighting
+        this.scene.translate(0, 0.02, 0.01); // Slightly above ground to avoid z-fighting
 
-        // Draw a simple quad as the shadow
-        const shadowRadius = this.trunkRadius * 2;
-        this.scene.scale(shadowRadius, shadowRadius, 1);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0); // Rotate to lie flat on the ground
+        // Scale shadow to match tree size
+        this.scene.scale(this.trunkRadius * 2.5, 1, this.trunkRadius * 2.5);
 
-        this.scene.plane.display();
+        // Render shadow circle
+        this.shadowCircle.display();
+
+        // Disable blending after rendering
+        this.scene.gl.disable(this.scene.gl.BLEND);
+
         this.scene.popMatrix();
     }
 }

@@ -93,6 +93,11 @@ export class MyForest extends CGFobject {
         for (const treeData of this.trees) {
             this.scene.pushMatrix();
             this.scene.translate(treeData.x, 0, treeData.z); // Ensure trees are placed on the ground (y = 0)
+            
+            // Display shadow
+            treeData.tree.displayShadow();
+
+            // Display tree
             treeData.tree.display();
             this.scene.popMatrix();
         }
