@@ -76,69 +76,62 @@ export class MyTree extends CGFobject {
     
     display() {
         this.scene.pushMatrix();
-        
+
+        // Ensure the tree is upright
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+
         // Apply tree tilt
         if (this.tiltAxis === 'x') {
             this.scene.rotate(this.tiltAngle * Math.PI / 180, 1, 0, 0);
         } else {
             this.scene.rotate(this.tiltAngle * Math.PI / 180, 0, 0, 1);
         }
-        
+
         // Display trunk
         this.scene.pushMatrix();
         this.trunkMaterial.apply();
         this.scene.scale(1, 1, this.trunkHeight);
         this.trunk.display();
         this.scene.popMatrix();
-        
+
         // Display foliage (pyramids)
         this.scene.pushMatrix();
         this.foliageMaterial.apply();
         this.scene.translate(0, 0, this.trunkHeight);
-        
+
         for (let i = 0; i < this.pyramids.length; i++) {
             const level = i / this.pyramids.length;
             const height = this.foliageHeight * (1 - level * 0.7);
             const radius = this.trunkRadius * (1 + level * 2);
-            
+
             this.scene.pushMatrix();
             this.scene.translate(0, 0, height * 0.5);
             this.scene.scale(radius, radius, height);
             this.pyramids[i].display();
             this.scene.popMatrix();
         }
-        
+
         this.scene.popMatrix();
-        
+
         // Display shadow
         this.displayShadow();
-        
+
         this.scene.popMatrix();
     }
     
     displayShadow() {
         this.scene.pushMatrix();
         this.shadowMaterial.apply();
-        
+
         // Position shadow on the ground
         this.scene.translate(0, 0, 0.01); // Slightly above ground to avoid z-fighting
-        
-        // Create a simple circle for the shadow
+
+        // Draw a simple quad as the shadow
         const shadowRadius = this.trunkRadius * 2;
-        this.scene.beginShape(this.scene.gl.TRIANGLE_FAN);
-        this.scene.vertex(0, 0, 0); // Center vertex
-        
-        // Add vertices in a circle with decreasing alpha
-        const segments = 32;
-        for (let i = 0; i <= segments; i++) {
-            const angle = (i / segments) * Math.PI * 2;
-            const x = Math.cos(angle) * shadowRadius;
-            const y = Math.sin(angle) * shadowRadius;
-            const alpha = 0.5 * (1 - (i / segments)); // Gradient transparency
-            this.scene.vertex(x, y, 0, 0, 0, 0, alpha);
-        }
-        
-        this.scene.endShape();
+        this.scene.scale(shadowRadius, shadowRadius, 1);
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0); // Rotate to lie flat on the ground
+
+        this.scene.plane.display();
         this.scene.popMatrix();
     }
 }

@@ -41,7 +41,7 @@ export class MyScene extends CGFscene {
     this.sphereVisible = true;
     this.numFloors = 3;
     this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
-    this.forest = new MyForest(this, 5, 4, 200, 200); // 5x4 forest in 200x200 area
+    this.forest = new MyForest(this, 5, 4, 300, 300, 100); // 5x4 forest in 200x200 area
 
     this.displayAxis = false;
     this.displaySphere = false;
@@ -170,8 +170,8 @@ export class MyScene extends CGFscene {
     }
     if (this.displayForest) {
       this.pushMatrix();
-      this.translate(0, 60, 0);
-      this.rotate(-Math.PI / 2, 1, 0, 0);
+      //this.translate(0, 60, 0);
+      //this.rotate(-Math.PI / 2, 1, 0, 0);
       this.forest.display();
       this.popMatrix();
     }
