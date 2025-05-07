@@ -14,13 +14,13 @@ export class MyBuilding extends CGFobject {
         this.windowsPerFloor = windowsPerFloor;
         this.color = color;
 
-        // Dimensões dos módulos
+        // Module dimensions
         this.centralWidth = width * 0.4;
         this.lateralWidth = this.centralWidth * 0.75;
         this.floorHeight = 12;
         this.depth = this.centralWidth * 0.75;
 
-        // Materiais
+        // Materials
         this.wallMaterial = new CGFappearance(scene);
         this.wallMaterial.setAmbient(...color, 1);
 
@@ -33,7 +33,7 @@ export class MyBuilding extends CGFobject {
         this.helipadMaterial = new CGFappearance(scene);
         this.helipadMaterial.setTexture(new CGFtexture(scene, 'images/helipad.png'));
 
-        // Objetos
+        // Objects
         this.window = new MyWindow(scene, windowTexture);
         this.plane = new MyPlane(scene, 1);
         this.circle = new MyCircle(scene, 40);
@@ -45,7 +45,7 @@ export class MyBuilding extends CGFobject {
         const totalHeight = floors * floorHeight;
         const spacing = width / (this.windowsPerFloor + 1);
 
-        // Parede frontal
+        // Front wall
         this.wallMaterial.apply();
         this.scene.pushMatrix();
         this.scene.translate(0, totalHeight/2, 0);
@@ -53,7 +53,7 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
 
-        // Parede traseira
+        // Back wall
         this.wallMaterial.apply();
         this.scene.pushMatrix();
         this.scene.translate(0, totalHeight/2, -depth);
@@ -62,7 +62,7 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
 
-        // Laterais
+        // Side walls
         const sides = [-1, 1];
         for (let s of sides) {
             this.scene.pushMatrix();
@@ -73,7 +73,7 @@ export class MyBuilding extends CGFobject {
             this.scene.popMatrix();
         }
 
-        // Telhado
+        // Roof
         this.scene.pushMatrix();
         this.scene.translate(0, totalHeight, -depth/2);
         this.scene.scale(width, 1, depth);
@@ -82,7 +82,7 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
 
-        // Piso
+        // Floor
         this.scene.pushMatrix();
         this.scene.translate(0, 0, -depth/2);
         this.scene.scale(width, 1, depth);
@@ -90,7 +90,7 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
         
-        // Janelas
+        // Windows
         for (let floor = 0; floor < floors; floor++) {
             if (floor === 0 && !hasGroundFloorWindows) continue;
 
@@ -107,9 +107,9 @@ export class MyBuilding extends CGFobject {
             }
         }
 
-        // Porta e letreiro (só módulo central)
+        // Door and sign (only for central module)
         if (!hasGroundFloorWindows) {
-            // Porta
+            // Door
             this.scene.pushMatrix();
             this.scene.translate(0, floorHeight/2-1, 0.01);
             this.scene.scale(width * 0.25, floorHeight * 0.8, 1);
@@ -117,7 +117,7 @@ export class MyBuilding extends CGFobject {
             this.plane.display();
             this.scene.popMatrix();
 
-            // Letreiro "BOMBEIROS"
+            // Sign "BOMBEIROS"
             this.scene.pushMatrix();
             this.scene.translate(0, floorHeight, 0.01);
             this.scene.scale(width * 0.5, floorHeight * 0.25, 1);
@@ -126,7 +126,7 @@ export class MyBuilding extends CGFobject {
             this.scene.popMatrix();
         }
 
-        // Heliporto
+        // Helipad
         if (floors === this.centralFloors) {
             this.scene.pushMatrix();
             this.scene.translate(0, totalHeight + 0.1, -depth/2);
@@ -138,7 +138,7 @@ export class MyBuilding extends CGFobject {
     }
 
     display() {
-        // Módulo esquerdo
+        // Left module
         this.scene.pushMatrix();
         this.scene.translate(
             -this.centralWidth / 2 - this.lateralWidth / 2,
@@ -148,10 +148,10 @@ export class MyBuilding extends CGFobject {
         this.displayModule(this.lateralWidth, this.lateralFloors);
         this.scene.popMatrix();
 
-        // Módulo central
+        // Central module
         this.displayModule(this.centralWidth, this.centralFloors, false);
 
-        // Módulo direito
+        // Right module
         this.scene.pushMatrix();
         this.scene.translate(
             this.centralWidth / 2 + this.lateralWidth / 2,

@@ -39,6 +39,9 @@ export class MyInterface extends CGFinterface {
         }
         );
 
+        //Checkbox to control the Forest Visibility
+        this.gui.add(this.scene, 'displayForest').name('Display Forest');
+
         this.initKeys();
 
         return true;

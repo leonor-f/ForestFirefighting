@@ -3,6 +3,7 @@ import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from './MyPanorama.js';
 import { MyBuilding } from './MyBuilding.js';
+import { MyForest } from './MyForest.js';
 
 /**
  * MyScene
@@ -39,12 +40,14 @@ export class MyScene extends CGFscene {
     this.sphereVisible = true;
     this.numFloors = 3;
     this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
+    this.forest = new MyForest(this, 5, 4, 200, 200); // 5x4 forest in 200x200 area
 
     this.displayAxis = false;
     this.displaySphere = false;
     this.displayPlain = true;
     this.displayPanorama = true;
     this.displayBuilding = true;
+    this.displayForest = true;
     this.scaleFactor = 1.0;
     this.scaleFactorSpeed = 1.0;
   }
@@ -158,6 +161,13 @@ export class MyScene extends CGFscene {
       this.pushMatrix();
       this.translate(0, 1.5, 0);
       this.building.display();
+      this.popMatrix();
+    }
+    if (this.displayForest) {
+      this.pushMatrix();
+      this.translate(0, 60, 0);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.forest.display();
       this.popMatrix();
     }
   }

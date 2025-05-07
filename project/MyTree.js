@@ -1,0 +1,144 @@
+import { CGFobject, CGFappearance, CGFtexture } from '../lib/CGF.js';
+import { MyCylinder } from './MyCylinder.js';
+import { MyPyramid } from './MyPyramid.js';
+
+export class MyTree extends CGFobject {
+    /**
+     * @constructor
+     * @param {CGFscene} scene - Reference to MyScene object
+     * @param {number} trunkRadius - Radius of the trunk base
+     * @param {number} treeHeight - Total height of the tree
+     * @param {number} tiltAngle - Tree tilt angle in degrees
+     * @param {string} tiltAxis - Axis of rotation ('x' or 'z')
+     * @param {array} foliageColor - RGB color for foliage [r, g, b]
+     */
+    constructor(scene, trunkRadius, treeHeight, tiltAngle, tiltAxis, foliageColor) {
+        super(scene);
+        
+        // Store parameters
+        this.trunkRadius = trunkRadius;
+        this.treeHeight = treeHeight;
+        this.tiltAngle = tiltAngle;
+        this.tiltAxis = tiltAxis;
+        this.foliageColor = foliageColor;
+        
+        // Calculate derived parameters
+        this.trunkHeight = treeHeight * 0.2; // Trunk is 20% of total height
+        this.foliageHeight = treeHeight * 0.8; // Foliage is 80% of total height
+        this.pyramidCount = Math.max(3, Math.floor(treeHeight / 5)); // Number of pyramids based on height
+        
+        // Initialize components
+        this.trunk = new MyCylinder(scene, 8, 1, this.trunkRadius, this.trunkRadius * 0.7, this.trunkHeight);
+        this.pyramids = [];
+        
+        // Create multiple pyramids for foliage
+        for (let i = 0; i < this.pyramidCount; i++) {
+            this.pyramids.push(new MyPyramid(scene, 4, 4));
+        }
+        
+        // Initialize materials
+        this.initMaterials();
+    }
+    
+    initMaterials() {
+        // Trunk material (brown)
+        this.trunkMaterial = new CGFappearance(this.scene);
+        this.trunkMaterial.setAmbient(0.3, 0.2, 0.1, 1.0);
+        this.trunkMaterial.setDiffuse(0.6, 0.4, 0.2, 1.0);
+        this.trunkMaterial.setSpecular(0.1, 0.1, 0.1, 1.0);
+        this.trunkMaterial.setShininess(10.0);
+        
+        // Load trunk texture
+        this.trunkTexture = new CGFtexture(this.scene, 'images/wood.jpg');
+        this.trunkMaterial.setTexture(this.trunkTexture);
+        this.trunkMaterial.setTextureWrap('REPEAT', 'REPEAT');
+        
+        // Foliage material (green with texture)
+        this.foliageMaterial = new CGFappearance(this.scene);
+        this.foliageMaterial.setAmbient(this.foliageColor[0] * 0.3, this.foliageColor[1] * 0.3, this.foliageColor[2] * 0.3, 1.0);
+        this.foliageMaterial.setDiffuse(this.foliageColor[0], this.foliageColor[1], this.foliageColor[2], 1.0);
+        this.foliageMaterial.setSpecular(0.1, 0.1, 0.1, 1.0);
+        this.foliageMaterial.setShininess(10.0);
+        
+        // Load foliage texture
+        this.foliageTexture = new CGFtexture(this.scene, 'images/leaves.jpg');
+        this.foliageMaterial.setTexture(this.foliageTexture);
+        this.foliageMaterial.setTextureWrap('REPEAT', 'REPEAT');
+        
+        // Shadow material (semi-transparent black)
+        this.shadowMaterial = new CGFappearance(this.scene);
+        this.shadowMaterial.setAmbient(0.1, 0.1, 0.1, 0.5);
+        this.shadowMaterial.setDiffuse(0.1, 0.1, 0.1, 0.5);
+        this.shadowMaterial.setSpecular(0, 0, 0, 0);
+        this.shadowMaterial.setEmission(0, 0, 0, 0.5);
+        this.shadowMaterial.setShininess(1.0);
+    }
+    
+    display() {
+        this.scene.pushMatrix();
+        
+        // Apply tree tilt
+        if (this.tiltAxis === 'x') {
+            this.scene.rotate(this.tiltAngle * Math.PI / 180, 1, 0, 0);
+        } else {
+            this.scene.rotate(this.tiltAngle * Math.PI / 180, 0, 0, 1);
+        }
+        
+        // Display trunk
+        this.scene.pushMatrix();
+        this.trunkMaterial.apply();
+        this.scene.scale(1, 1, this.trunkHeight);
+        this.trunk.display();
+        this.scene.popMatrix();
+        
+        // Display foliage (pyramids)
+        this.scene.pushMatrix();
+        this.foliageMaterial.apply();
+        this.scene.translate(0, 0, this.trunkHeight);
+        
+        for (let i = 0; i < this.pyramids.length; i++) {
+            const level = i / this.pyramids.length;
+            const height = this.foliageHeight * (1 - level * 0.7);
+            const radius = this.trunkRadius * (1 + level * 2);
+            
+            this.scene.pushMatrix();
+            this.scene.translate(0, 0, height * 0.5);
+            this.scene.scale(radius, radius, height);
+            this.pyramids[i].display();
+            this.scene.popMatrix();
+        }
+        
+        this.scene.popMatrix();
+        
+        // Display shadow
+        this.displayShadow();
+        
+        this.scene.popMatrix();
+    }
+    
+    displayShadow() {
+        this.scene.pushMatrix();
+        this.shadowMaterial.apply();
+        
+        // Position shadow on the ground
+        this.scene.translate(0, 0, 0.01); // Slightly above ground to avoid z-fighting
+        
+        // Create a simple circle for the shadow
+        const shadowRadius = this.trunkRadius * 2;
+        this.scene.beginShape(this.scene.gl.TRIANGLE_FAN);
+        this.scene.vertex(0, 0, 0); // Center vertex
+        
+        // Add vertices in a circle with decreasing alpha
+        const segments = 32;
+        for (let i = 0; i <= segments; i++) {
+            const angle = (i / segments) * Math.PI * 2;
+            const x = Math.cos(angle) * shadowRadius;
+            const y = Math.sin(angle) * shadowRadius;
+            const alpha = 0.5 * (1 - (i / segments)); // Gradient transparency
+            this.scene.vertex(x, y, 0, 0, 0, 0, alpha);
+        }
+        
+        this.scene.endShape();
+        this.scene.popMatrix();
+    }
+}
