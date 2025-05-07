@@ -35,7 +35,8 @@ export class MyScene extends CGFscene {
 
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
-    this.plane = new MyPlane(this, 64, 0, 4, 0, 4);
+    this.plane = new MyPlane(this, 64);
+    //this.plane = new MyPlane(this, 64, 0, 4, 0, 4);
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
     this.numFloors = 3;
@@ -155,13 +156,15 @@ export class MyScene extends CGFscene {
     if (this.displaySphere) {
       this.pushMatrix();
       this.sphereMaterial.apply();
-      this.scale(400, 400, 400);
+      this.scale(200, 200, 200);
+      //this.scale(400, 400, 400);
       this.sphere.display();
       this.popMatrix();
     }
     if (this.displayBuilding) {
       this.pushMatrix();
-      this.translate(0, 1.5, -150);
+      this.translate(0, 1.5, 0);
+      //this.translate(0, 1.5, -150);
       this.building.display();
       this.popMatrix();
     }
