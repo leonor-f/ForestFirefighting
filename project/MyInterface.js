@@ -20,9 +20,6 @@ export class MyInterface extends CGFinterface {
         //Checkbox element in GUI
         this.gui.add(this.scene, 'displayAxis').name('Display Axis');
 
-        //Checkbox to control the Sphere Visibility
-        this.gui.add(this.scene,'displaySphere').name('Outer Sphere');
-
         //Checkbox to control the Plain Visibility
         this.gui.add(this.scene, 'displayPlain').name('Plain');
 
