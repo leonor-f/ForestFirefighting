@@ -39,6 +39,15 @@ export class MyInterface extends CGFinterface {
         //Checkbox to control the Forest Visibility
         this.gui.add(this.scene, 'displayForest').name('Display Forest');
 
+        //Checkbox to control the Helicopter Visibility
+        this.gui.add(this.scene, 'displayHelicopter').name('Helicopter');
+
+        this.gui.add(this.scene, 'speedFactor', 1, 3).name('Speed').step(0.1).onChange((value) => {
+            this.scene.helicopter.speedFactor = value;
+        }
+        );
+
+        //this.scene.setupControls(this.gui);
         this.initKeys();
 
         return true;

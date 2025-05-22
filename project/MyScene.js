@@ -4,6 +4,7 @@ import { MySphere } from "./MySphere.js";
 import { MyPanorama } from './MyPanorama.js';
 import { MyBuilding } from './MyBuilding.js';
 import { MyForest } from './MyForest.js';
+import { MyHeli } from './MyHeli.js';
 
 /**
  * MyScene
@@ -35,13 +36,15 @@ export class MyScene extends CGFscene {
 
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
-    this.plane = new MyPlane(this, 64);
-    //this.plane = new MyPlane(this, 64, 0, 4, 0, 4);
+    this.plane = new MyPlane(this, 64, 0, 4, 0, 4);
     this.sphere = new MySphere(this, 64, 32);
     this.sphereVisible = true;
     this.numFloors = 3;
     this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
     this.forest = new MyForest(this, 5, 4, 300, 300, 100); // 5x4 forest in 200x200 area
+    this.speedFactor = 2.0;
+    this.lastUpdateTime = 0;
+    this.helicopter = new MyHeli(this);
 
     this.displayAxis = false;
     this.displaySphere = false;
@@ -49,6 +52,7 @@ export class MyScene extends CGFscene {
     this.displayPanorama = true;
     this.displayBuilding = true;
     this.displayForest = true;
+    this.displayHelicopter = true; 
     this.scaleFactor = 1.0;
     this.scaleFactorSpeed = 1.0;
   }
@@ -59,6 +63,18 @@ export class MyScene extends CGFscene {
     this.lights[0].setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.lights[0].enable();
     this.lights[0].update();
+
+    this.lights[1].setPosition(-150, 100, 50, 1);
+    this.lights[1].setDiffuse(0.4, 0.4, 0.5, 1.0);  
+    this.lights[1].setSpecular(0.2, 0.2, 0.2, 1.0);
+    this.lights[1].setAmbient(0.05, 0.05, 0.05, 1.0);
+    this.lights[1].enable();
+    
+    this.lights[2].setPosition(0, 80, -200, 1);
+    this.lights[2].setDiffuse(0.3, 0.3, 0.3, 1.0);
+    this.lights[2].setSpecular(0.6, 0.6, 0.6, 1.0);
+    this.lights[2].setAmbient(0.0, 0.0, 0.0, 1.0); 
+    this.lights[2].enable();
   }
 
   initCameras() {
@@ -92,28 +108,50 @@ export class MyScene extends CGFscene {
     this.panoramaTexture = new CGFtexture(this, 'images/landscape.jpg');
     this.panorama = new MyPanorama(this, this.panoramaTexture);
   }
-
-  checkKeys() {
-    var text = "Keys pressed: ";
-    var keysPressed = false;
-
+  
+  checkKeys(delta_t) {
     // Check for key codes e.g. in https://keycode.info/
+    // W - Move forward
     if (this.gui.isKeyPressed("KeyW")) {
-      text += " W ";
-      keysPressed = true;
+      this.helicopter.accelerate(1, this.speedFactor);
     }
-
+    // S - Break
     if (this.gui.isKeyPressed("KeyS")) {
-      text += " S ";
-      keysPressed = true;
+      this.helicopter.accelerate(-1, this.speedFactor);
     }
-    if (keysPressed)
-      console.log(text);
+    // A - Turn left
+    if (this.gui.isKeyPressed("KeyA")) {
+      this.helicopter.turn(1, this.speedFactor);
+    }
+    // D - Turn right
+    if (this.gui.isKeyPressed("KeyD")) {
+      this.helicopter.turn(-1, this.speedFactor);
+    }
+    // R - Reset helicopter position
+    if (this.gui.isKeyPressed("KeyR")) {
+      this.helicopter.reset();
+    }
+    // P - Take off
+    if (this.gui.isKeyPressed("KeyP")) {
+      this.helicopter.takeOff();
+    }
+    // L - Land or fetch water
+    if (this.gui.isKeyPressed("KeyL")) {
+      this.helicopter.land();
+    }
   }
 
   update(t) {
-    this.checkKeys();
+    if (this.lastUpdateTime === 0) {
+      this.lastUpdateTime = t;
+      return;
+    }
+    const delta_t = t - this.lastUpdateTime;
+    this.lastUpdateTime = t;
+    this.helicopter.update(t, delta_t, this.speedFactor);
+    this.checkKeys(delta_t);
   }
+  
 
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
@@ -136,6 +174,8 @@ export class MyScene extends CGFscene {
     this.setDefaultAppearance();
 
     this.lights[0].update();
+    this.lights[1].update();
+    this.lights[2].update();
 
     // Draw axis  
     if (this.displayAxis) {
@@ -148,7 +188,7 @@ export class MyScene extends CGFscene {
     if (this.displayPlain) {
       this.pushMatrix();
       this.planeMaterial.apply(); 
-      this.scale(400, 1, 400);
+      this.scale(600, 1, 600);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.plane.display();
       this.popMatrix();
@@ -156,15 +196,13 @@ export class MyScene extends CGFscene {
     if (this.displaySphere) {
       this.pushMatrix();
       this.sphereMaterial.apply();
-      this.scale(200, 200, 200);
-      //this.scale(400, 400, 400);
+      this.scale(400, 400, 400);
       this.sphere.display();
       this.popMatrix();
     }
     if (this.displayBuilding) {
       this.pushMatrix();
-      this.translate(0, 1.5, 0);
-      //this.translate(0, 1.5, -150);
+      this.translate(0, 1.5, -150);
       this.building.display();
       this.popMatrix();
     }
@@ -175,5 +213,13 @@ export class MyScene extends CGFscene {
       this.forest.display();
       this.popMatrix();
     }
+
+    if (this.displayHelicopter) {
+      this.pushMatrix();
+      this.rotate(Math.PI / 2, 0, 1, 0);
+      this.translate(165, 20 + 12 * this.numFloors, 0);
+      this.helicopter.display();
+      this.popMatrix();
+    }    
   }
 }
