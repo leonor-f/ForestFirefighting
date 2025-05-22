@@ -29,16 +29,16 @@ export class MyForest extends CGFobject {
         const colSpacing = this.areaDepth / (this.cols + 1);
 
         // Define building area to avoid placing trees inside it
-        const buildingX = 100; // Building center X-coordinate
-        const buildingZ = -150; // Building center Z-coordinate
+        const buildingX = -200; // Building center X-coordinate
+        const buildingZ = -100; // Building center Z-coordinate
 
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 // Calculate base position
-                let x = -this.areaWidth / 2 + (col + 1) * colSpacing;
+                let x = -this.areaWidth / 2 + (col + 5) * colSpacing;
                 let z = -this.areaDepth / 2 + (row + 1) * rowSpacing;
 
-                // Add random offset (10% of spacing)
+                // Add random offset (20% of spacing)
                 const maxOffset = Math.min(rowSpacing, colSpacing) * 0.2;
                 x += (Math.random() * 2 - 1) * maxOffset;
                 z += (Math.random() * 2 - 1) * maxOffset;

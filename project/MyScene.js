@@ -41,7 +41,7 @@ export class MyScene extends CGFscene {
     this.sphereVisible = true;
     this.numFloors = 3;
     this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
-    this.forest = new MyForest(this, 10, 6, 500, 500, 400); // 5x4 forest in 200x200 area
+    this.forest = new MyForest(this, 12, 6, 500, 500, 400);
     this.speedFactor = 2.0;
     this.lastUpdateTime = 0;
     this.helicopter = new MyHeli(this);
