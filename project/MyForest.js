@@ -29,8 +29,8 @@ export class MyForest extends CGFobject {
         const colSpacing = this.areaDepth / (this.cols + 1);
 
         // Define building area to avoid placing trees inside it
-        const buildingX = 0; // Building center X-coordinate
-        const buildingZ = 0; // Building center Z-coordinate
+        const buildingX = 100; // Building center X-coordinate
+        const buildingZ = -150; // Building center Z-coordinate
 
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
@@ -39,7 +39,7 @@ export class MyForest extends CGFobject {
                 let z = -this.areaDepth / 2 + (row + 1) * rowSpacing;
 
                 // Add random offset (10% of spacing)
-                const maxOffset = Math.min(rowSpacing, colSpacing) * 0.1;
+                const maxOffset = Math.min(rowSpacing, colSpacing) * 0.2;
                 x += (Math.random() * 2 - 1) * maxOffset;
                 z += (Math.random() * 2 - 1) * maxOffset;
 
@@ -56,9 +56,9 @@ export class MyForest extends CGFobject {
                 }
 
                 // Generate random tree parameters
-                const trunkRadius = 0.5 + Math.random() * 1.5;
-                const treeHeight = 10 + Math.random() * 20;
-                const tiltAngle = Math.random() * 15; // Up to 15 degrees tilt
+                const trunkRadius = 3 + Math.random() * 3;
+                const treeHeight = 20 + Math.random() * 20;
+                const tiltAngle = Math.random() * 10; // Up to 10 degrees tilt
                 const tiltAxis = Math.random() > 0.5 ? 'x' : 'z';
 
                 // Random green color (mostly green with some variation)

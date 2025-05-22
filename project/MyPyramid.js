@@ -22,29 +22,10 @@ export class MyPyramid extends CGFobject {
         this.texCoords = [];
         
         const deltaAng = (2 * Math.PI) / this.slices;
-        
-        // Base center vertex
-        this.vertices.push(0, 0, 0);
-        this.normals.push(0, 0, -1);
-        this.texCoords.push(0.5, 0.5);
-        
-        // Base perimeter vertices
-        for (let i = 0; i <= this.slices; i++) {
-            const ang = i * deltaAng;
-            const x = Math.cos(ang);
-            const y = Math.sin(ang);
-            
-            this.vertices.push(x, y, 0);
-            this.normals.push(0, 0, -1);
-            this.texCoords.push(0.5 + x * 0.5, 0.5 + y * 0.5);
-        }
-        
-        // Base indices
-        for (let i = 1; i <= this.slices; i++) {
-            this.indices.push(0, i, i + 1);
-        }
-        
+
         // Side vertices and normals for each stack
+        const sideStart = 0; // agora começa em 0
+
         for (let stack = 1; stack <= this.stacks; stack++) {
             const z = stack / this.stacks;
             const scale = 1 - z;
@@ -77,10 +58,6 @@ export class MyPyramid extends CGFobject {
         }
         
         // Side indices
-        const baseCenterIndex = 0;
-        const basePerimeterStart = 1;
-        const sideStart = basePerimeterStart + this.slices + 1;
-        
         for (let stack = 0; stack < this.stacks; stack++) {
             const currentStackStart = sideStart + stack * (this.slices + 1);
             const nextStackStart = currentStackStart + this.slices + 1;

@@ -24,12 +24,12 @@ export class MyTree extends CGFobject {
         this.foliageColor = foliageColor;
         
         // Calculate derived parameters
-        this.trunkHeight = treeHeight * 0.2; // Trunk is 20% of total height
-        this.foliageHeight = treeHeight * 0.8; // Foliage is 80% of total height
+        this.trunkHeight = treeHeight * 0.15; // Trunk is 15% of total height
+        this.foliageHeight = treeHeight * 0.85; // Foliage is 90% of total height
         this.pyramidCount = Math.max(3, Math.floor(treeHeight / 5)); // Number of pyramids based on height
         
         // Initialize components
-        this.trunk = new MyCylinder(scene, 8, 1, this.trunkRadius, this.trunkRadius * 0.7, this.trunkHeight);
+        this.trunk = new MyCylinder(scene, 8, 1, this.trunkRadius * 0.8, this.trunkRadius * 0.5, this.trunkHeight);
         this.pyramids = [];
         
         // Create multiple pyramids for foliage
