@@ -41,7 +41,7 @@ export class MyScene extends CGFscene {
     this.sphereVisible = true;
     this.numFloors = 3;
     this.building = new MyBuilding(this, 100, this.numFloors, 2, 'images/window.png', [0.35, 0.35, 0.35]);
-    this.forest = new MyForest(this, 12, 6, 500, 500, 400);
+    this.forest = new MyForest(this, 12, 4, 250, 250, 100);
     this.speedFactor = 2.0;
     this.lastUpdateTime = 0;
     this.helicopter = new MyHeli(this);
@@ -208,8 +208,8 @@ export class MyScene extends CGFscene {
     }
     if (this.displayForest) {
       this.pushMatrix();
-      //this.translate(0, 60, 0);
-      //this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.translate(140, 0, 0);
+      this.rotate(-Math.PI / 2, 0, 1, 0); // Rotate 45 degrees clockwise around Y axis
       this.forest.display();
       this.popMatrix();
     }

@@ -32,58 +32,83 @@ export class MyForest extends CGFobject {
         const buildingX = -200; // Building center X-coordinate
         const buildingZ = -100; // Building center Z-coordinate
 
-        for (let row = 0; row < this.rows; row++) {
-            for (let col = 0; col < this.cols; col++) {
-                // Calculate base position
-                let x = -this.areaWidth / 2 + (col + 5) * colSpacing;
-                let z = -this.areaDepth / 2 + (row + 1) * rowSpacing;
-
-                // Add random offset (20% of spacing)
-                const maxOffset = Math.min(rowSpacing, colSpacing) * 0.2;
-                x += (Math.random() * 2 - 1) * maxOffset;
-                z += (Math.random() * 2 - 1) * maxOffset;
-
-                // Skip trees inside the building area
-                const halfBuildingWidth = buildingWidth / 2;
-                const halfBuildingDepth = buildingDepth / 2;
-                if (
-                    x > buildingX - halfBuildingWidth &&
-                    x < buildingX + halfBuildingWidth &&
-                    z > buildingZ - halfBuildingDepth &&
-                    z < buildingZ + halfBuildingDepth
-                ) {
-                    continue;
+        // Geração de árvores em posições aleatórias, sem linhas
+        let positions = [];
+        let minDist = Math.min(this.areaWidth, this.areaDepth) * 0.1;
+        let maxDist = Math.min(this.areaWidth, this.areaDepth) * 0.8;
+        let tries = 0;
+        while (positions.length < this.rows * this.cols && tries < 2000) {
+            let x = (Math.random() - 0.5) * (this.areaWidth - 16);
+            let z = (Math.random() - 0.5) * (this.areaDepth - 16);
+            let valid = true;
+            for (let pos of positions) {
+                let dx = x - pos.x;
+                let dz = z - pos.z;
+                let dist = Math.sqrt(dx*dx + dz*dz);
+                if (dist < minDist || dist > maxDist) {
+                    valid = false;
+                    break;
                 }
+            }
+            if (valid) positions.push({x, z});
+            tries++;
+        }
+        for (let pos of positions) {
+            // Skip trees inside the building area
+            const halfBuildingWidth = buildingWidth / 2;
+            const halfBuildingDepth = buildingDepth / 2;
+            if (
+                pos.x > buildingX - halfBuildingWidth &&
+                pos.x < buildingX + halfBuildingWidth &&
+                pos.z > buildingZ - halfBuildingDepth &&
+                pos.z < buildingZ + halfBuildingDepth
+            ) {
+                continue;
+            }
 
-                // Generate random tree parameters
-                const trunkRadius = 3 + Math.random() * 3;
-                const treeHeight = 20 + Math.random() * 20;
+            // Limita as árvores para não ultrapassarem os limites da relva
+            const grassMargin = 8; // margem de segurança para não encostar na borda
+            const x = Math.max(-this.areaWidth/2 + grassMargin, Math.min(this.areaWidth/2 - grassMargin, pos.x));
+            const z = Math.max(-this.areaDepth/2 + grassMargin, Math.min(this.areaDepth/2 - grassMargin, pos.z));
+
+            // Generate random tree parameters
+                const trunkRadius = 2 + Math.random() * 3;
+                const treeHeight = 25 + Math.random() * 20;
                 const tiltAngle = Math.random() * 10; // Up to 10 degrees tilt
                 const tiltAxis = Math.random() > 0.5 ? 'x' : 'z';
 
-                // Random green color (mostly green with some variation)
+            // Random foliage color: mostly green, but sometimes yellow-green
+            let foliageColor;
+            if (Math.random() < 0.35) {
+                // 35% chance for yellow-green tones
+                const green = 0.6 + Math.random() * 0.3; // 0.6 - 0.9
+                const red = 0.5 + Math.random() * 0.3;   // 0.5 - 0.8
+                const blue = Math.random() * 0.1;        // 0.0 - 0.1
+                foliageColor = [red, green, blue];
+            } else {
+                // Mostly green with some variation
                 const green = 0.3 + Math.random() * 0.5;
                 const red = Math.random() * 0.2;
                 const blue = Math.random() * 0.2;
-                const foliageColor = [red, green, blue];
-
-                // Create tree
-                const tree = new MyTree(
-                    this.scene,
-                    trunkRadius,
-                    treeHeight,
-                    tiltAngle,
-                    tiltAxis,
-                    foliageColor
-                );
-
-                // Store tree with its position
-                this.trees.push({
-                    tree: tree,
-                    x: x,
-                    z: z
-                });
+                foliageColor = [red, green, blue];
             }
+
+            // Create tree
+            const tree = new MyTree(
+                this.scene,
+                trunkRadius,
+                treeHeight,
+                tiltAngle,
+                tiltAxis,
+                foliageColor
+            );
+
+            // Store tree with its position
+            this.trees.push({
+                tree: tree,
+                x: x,
+                z: z
+            });
         }
     }
     

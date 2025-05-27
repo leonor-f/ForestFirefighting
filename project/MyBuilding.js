@@ -102,6 +102,7 @@ export class MyBuilding extends CGFobject {
                     0.05
                 );
                 this.scene.scale(6, 6, 1);
+                this.scene.translate(0, 0, 0.5); // Slightly in front of the wall
                 this.window.display();
                 this.scene.popMatrix();
             }
@@ -111,7 +112,7 @@ export class MyBuilding extends CGFobject {
         if (!hasGroundFloorWindows) {
             // Door
             this.scene.pushMatrix();
-            this.scene.translate(0, floorHeight/2-1, 0.05);
+            this.scene.translate(0, floorHeight/2-1, 0.8);
             this.scene.scale(width * 0.25, floorHeight * 0.8, 1);
             this.doorMaterial.apply();
             this.plane.display();
@@ -119,7 +120,7 @@ export class MyBuilding extends CGFobject {
 
             // Sign "BOMBEIROS"
             this.scene.pushMatrix();
-            this.scene.translate(0, floorHeight, 0.05);
+            this.scene.translate(0, floorHeight, 0.5);
             this.scene.scale(width * 0.5, floorHeight * 0.25, 1);
             this.signMaterial.apply();
             this.plane.display();
