@@ -59,7 +59,7 @@ export class MyTree extends CGFobject {
         
         // Foliage material (green with texture)
         this.foliageMaterial = new CGFappearance(this.scene);
-        // Cor base verde (pode ser usada para modulação)
+        // Base color green
         const r = this.foliageColor[0];
         const g = this.foliageColor[1];
         const b = this.foliageColor[2];
@@ -67,24 +67,17 @@ export class MyTree extends CGFobject {
         this.foliageMaterial.setDiffuse(r, g, b, 1.0);
         this.foliageMaterial.setSpecular(0.1, 0.1, 0.1, 1.0);
         this.foliageMaterial.setShininess(10.0);
-        // Ativa textura de folhas realista
+        // Load leaves texture
         this.foliageTexture = new CGFtexture(this.scene, 'images/leaf5.jpg');
         this.foliageMaterial.setTexture(this.foliageTexture);
         this.foliageMaterial.setTextureWrap('REPEAT', 'REPEAT');
         
         // Shadow material (gradient texture)
         this.shadowMaterial = new CGFappearance(this.scene);
-
         // Load shadow texture
-        this.shadowTexture = new CGFtexture(this.scene, 'images/shadow1.png');
+        this.shadowTexture = new CGFtexture(this.scene, 'images/shadow5.png');
         this.shadowMaterial.setTexture(this.shadowTexture);
         this.shadowMaterial.setTextureWrap('REPEAT', 'REPEAT');
-        // Ativa blending para transparência ao desenhar a sombra
-        this.shadowMaterial.apply = ((origApply) => function() {
-            origApply.call(this);
-            this.scene.gl.enable(this.scene.gl.BLEND);
-            this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
-        })(this.shadowMaterial.apply);
     }
     
     display() {
@@ -112,7 +105,6 @@ export class MyTree extends CGFobject {
         this.foliageMaterial.apply();
         this.scene.translate(0, 0, this.trunkHeight);
 
-        // Novo cálculo para pirâmides mais altas
         const stepHeight = this.foliageHeight / this.pyramids.length;
         let zBase = 0;
         for (let i = 0; i < this.pyramids.length; i++) {
@@ -127,12 +119,9 @@ export class MyTree extends CGFobject {
             this.scene.popMatrix();
 
             zBase += height * 0.55;
-
-            
         }
 
         this.scene.popMatrix();
-
         this.scene.popMatrix();
     }
     
@@ -141,7 +130,10 @@ export class MyTree extends CGFobject {
 
         // Enable blending for transparency
         this.scene.gl.enable(this.scene.gl.BLEND);
-        this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
+        this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA, this.scene.gl.ONE, this.scene.gl.ONE);
+
+        /*this.scene.gl.enable(this.scene.gl.BLEND);
+        this.scene.gl.blendFunc(this.scene.gl.ZERO, this.scene.gl.SRC_COLOR);*/
 
         this.shadowMaterial.apply();
 

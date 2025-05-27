@@ -32,7 +32,7 @@ export class MyForest extends CGFobject {
         const buildingX = -200; // Building center X-coordinate
         const buildingZ = -100; // Building center Z-coordinate
 
-        // Geração de árvores em posições aleatórias, sem linhas
+        // Tree positions generation with random distribution
         let positions = [];
         let minDist = Math.min(this.areaWidth, this.areaDepth) * 0.1;
         let maxDist = Math.min(this.areaWidth, this.areaDepth) * 0.8;
@@ -66,8 +66,8 @@ export class MyForest extends CGFobject {
                 continue;
             }
 
-            // Limita as árvores para não ultrapassarem os limites da relva
-            const grassMargin = 8; // margem de segurança para não encostar na borda
+            // Limits the tree positions to the grass area
+            const grassMargin = 8; // security margin to avoid trees too close to the edge
             const x = Math.max(-this.areaWidth/2 + grassMargin, Math.min(this.areaWidth/2 - grassMargin, pos.x));
             const z = Math.max(-this.areaDepth/2 + grassMargin, Math.min(this.areaDepth/2 - grassMargin, pos.z));
 

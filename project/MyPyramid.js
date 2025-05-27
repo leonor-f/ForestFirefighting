@@ -23,11 +23,10 @@ export class MyPyramid extends CGFobject {
         
         const deltaAng = (2 * Math.PI) / this.slices;
 
-        // --- NOVO MAPEAMENTO DE TEXTURA PARA FOLHAS ---
-        // Topo (pico) da pirâmide
-        this.vertices.push(0, 0, 1); // topo
-        this.normals.push(0, 0, 1); // normal para cima
-        this.texCoords.push(0.5, 1); // centro superior da textura
+        // Top (peak) of the pyramid
+        this.vertices.push(0, 0, 1); // top
+        this.normals.push(0, 0, 1); // normal to the top
+        this.texCoords.push(0.5, 1); // texture's center at the top
 
         // Base
         for (let slice = 0; slice <= this.slices; slice++) {
@@ -35,12 +34,12 @@ export class MyPyramid extends CGFobject {
             const x = Math.cos(ang);
             const y = Math.sin(ang);
             this.vertices.push(x, y, 0);
-            this.normals.push(x, y, 0); // normal radial
-            // Mapeamento para ocupar toda a textura: base vai de (0,0) a (1,0)
-            this.texCoords.push((x + 1) / 2, (y + 1) / 2 * 0); // (x+1)/2 cobre [0,1] em X, Y sempre 0
+            this.normals.push(x, y, 0); // radial normal
+            // Mapping to fill all the texture: base goes from (0,0) to (1,0)
+            this.texCoords.push((x + 1) / 2, (y + 1) / 2 * 0); // (x+1)/2 covers [0,1] at X, Y always 0
         }
 
-        // Índices para as faces laterais
+        // Indexes for the side faces of the pyramid
         for (let slice = 0; slice < this.slices; slice++) {
             this.indices.push(0, slice + 1, slice + 2);
         }

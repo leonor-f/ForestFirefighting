@@ -209,7 +209,7 @@ export class MyScene extends CGFscene {
     if (this.displayForest) {
       this.pushMatrix();
       this.translate(140, 0, 0);
-      this.rotate(-Math.PI / 2, 0, 1, 0); // Rotate 45 degrees clockwise around Y axis
+      this.rotate(-Math.PI / 2, 0, 1, 0);
       this.forest.display();
       this.popMatrix();
     }

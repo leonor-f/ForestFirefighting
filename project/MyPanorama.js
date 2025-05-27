@@ -25,6 +25,7 @@ export class MyPanorama extends CGFobject{
         this.scene.pushMatrix();
         const cameraPos = this.scene.camera.position;
         this.scene.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
+        this.scene.rotate(Math.PI / 1.5, 0, 1, 0); // Rotaciona 180º no eixo Y
         this.sphere.display();
         this.scene.popMatrix();
     }
