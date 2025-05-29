@@ -149,6 +149,9 @@ export class MyScene extends CGFscene {
     const delta_t = t - this.lastUpdateTime;
     this.lastUpdateTime = t;
     this.helicopter.update(t, delta_t, this.speedFactor);
+    if (this.forest && typeof this.forest.update === 'function') {
+        this.forest.update(delta_t);
+    }
     this.checkKeys(delta_t);
   }
   

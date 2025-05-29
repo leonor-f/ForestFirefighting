@@ -20,6 +20,7 @@ export class MyPyramid extends CGFobject {
         this.indices = [];
         this.normals = [];
         this.texCoords = [];
+        this.colors = [];
         
         const deltaAng = (2 * Math.PI) / this.slices;
 
@@ -27,6 +28,7 @@ export class MyPyramid extends CGFobject {
         this.vertices.push(0, 0, 1); // top
         this.normals.push(0, 0, 1); // normal to the top
         this.texCoords.push(0.5, 1); // texture's center at the top
+        this.colors.push(1.0, 0.0, 0.0, 1.0); // vermelho intenso no topo
 
         // Base
         for (let slice = 0; slice <= this.slices; slice++) {
@@ -35,8 +37,14 @@ export class MyPyramid extends CGFobject {
             const y = Math.sin(ang);
             this.vertices.push(x, y, 0);
             this.normals.push(x, y, 0); // radial normal
-            // Mapping to fill all the texture: base goes from (0,0) to (1,0)
-            this.texCoords.push((x + 1) / 2, (y + 1) / 2 * 0); // (x+1)/2 covers [0,1] at X, Y always 0
+            this.texCoords.push((x + 1) / 2, (y + 1) / 2 * 0);
+            // Interpola cor entre amarelo e vermelho na base
+            const t = slice / this.slices;
+            // t=0 amarelo, t=1 vermelho
+            const r = 1.0;
+            const g = 1.0 - 0.7 * t; // de 1.0 (amarelo) até 0.3 (vermelho)
+            const b = 0.0;
+            this.colors.push(r, g, b, 1.0);
         }
 
         // Indexes for the side faces of the pyramid

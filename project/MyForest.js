@@ -1,5 +1,6 @@
 import { CGFobject } from '../lib/CGF.js';
 import { MyTree } from './MyTree.js';
+import { MyFire } from './MyFire.js';
 
 export class MyForest extends CGFobject {
     /**
@@ -9,6 +10,7 @@ export class MyForest extends CGFobject {
      * @param {number} cols - Number of columns in the forest grid
      * @param {number} areaWidth - Width of the forest area
      * @param {number} areaDepth - Depth of the forest area
+     * @param {number} buildingW - Width of the building area to avoid placing trees inside it
      */
     constructor(scene, rows, cols, areaWidth, areaDepth, buildingW) {
         super(scene);
@@ -19,15 +21,14 @@ export class MyForest extends CGFobject {
         this.buildingW = buildingW;
         
         this.trees = [];
+        this.fires = [];
         this.initForest();
+        this.initFires();
     }
     
     initForest() {
         const buildingWidth = this.buildingW;
         const buildingDepth = buildingWidth * 0.4 * 0.75;
-        const rowSpacing = this.areaWidth / (this.rows + 1);
-        const colSpacing = this.areaDepth / (this.cols + 1);
-
         // Define building area to avoid placing trees inside it
         const buildingX = -200; // Building center X-coordinate
         const buildingZ = -100; // Building center Z-coordinate
@@ -111,22 +112,54 @@ export class MyForest extends CGFobject {
             });
         }
     }
+
+    initFires() {
+        // Cria alguns incêndios em posições aleatórias da floresta
+        const numFires = 5 + Math.floor(Math.random() * 3); // 5 a 7 incêndios
+        for (let i = 0; i < numFires; i++) {
+            // Posição aleatória dentro da área da floresta
+            const x = (Math.random() - 0.5) * (this.areaWidth / 3 - 20);
+            const z = (Math.random() - 0.5) * (this.areaDepth / 3 - 40);
+            const fire = new MyFire(
+                this.scene,
+                x,
+                0,
+                z,
+                11 + Math.floor(Math.random() * 5) // 11 a 15 labaredas
+            );
+            this.fires.push({
+                fire: fire,
+                x: x,
+                z: z
+            });
+        }
+    }
     
     display() {
         this.scene.pushMatrix();
-        
+        // Primeiro desenha as árvores
         for (const treeData of this.trees) {
             this.scene.pushMatrix();
-            this.scene.translate(treeData.x, 0, treeData.z); // Ensure trees are placed on the ground (y = 0)
-            
-            // Display shadow
+            this.scene.translate(treeData.x, 0, treeData.z);
             treeData.tree.displayShadow();
-
-            // Display tree
             treeData.tree.display();
             this.scene.popMatrix();
         }
-        
+        // Depois desenha os fogos (ficam à frente na ordem de desenho)
+        for (const fireData of this.fires) {
+            this.scene.pushMatrix();
+            this.scene.translate(fireData.x, 0, fireData.z);
+            fireData.fire.display();
+            this.scene.popMatrix();
+        }
         this.scene.popMatrix();
+    }
+
+    update(delta_t) {
+        for (const fireData of this.fires) {
+            if (fireData.fire && typeof fireData.fire.update === 'function') {
+                fireData.fire.update(delta_t);
+            }
+        }
     }
 }
