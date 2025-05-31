@@ -115,7 +115,7 @@ export class MyForest extends CGFobject {
 
     initFires() {
         // Cria alguns incêndios em posições aleatórias da floresta
-        const numFires = 5 + Math.floor(Math.random() * 3); // 5 a 7 incêndios
+        const numFires = 7 + Math.floor(Math.random() * 3); // 7 a 9 incêndios
         for (let i = 0; i < numFires; i++) {
             // Posição aleatória dentro da área da floresta
             const x = (Math.random() - 0.5) * (this.areaWidth / 3 - 20);
