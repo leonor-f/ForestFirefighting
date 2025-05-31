@@ -135,9 +135,30 @@ export class MyForest extends CGFobject {
         }
     }
     
+    extinguishFiresInRange(heliX, heliZ, radius) {
+        let extinguishedCount = 0;
+        
+        for (const fireData of this.fires) {
+            if (!fireData.fire.isExtinguished) {
+                const distanceToFire = Math.sqrt(
+                    Math.pow(heliX - fireData.x, 2) + 
+                    Math.pow(heliZ - fireData.z, 2)
+                );
+                
+                if (distanceToFire <= radius) {
+                    fireData.fire.extinguish();
+                    extinguishedCount++;
+                }
+            }
+        }
+        
+        return extinguishedCount;
+    }
+    
+    // Also modify the display method to only show active fires
     display() {
         this.scene.pushMatrix();
-        // Primeiro desenha as árvores
+        // First draw the trees
         for (const treeData of this.trees) {
             this.scene.pushMatrix();
             this.scene.translate(treeData.x, 0, treeData.z);
@@ -145,12 +166,14 @@ export class MyForest extends CGFobject {
             treeData.tree.display();
             this.scene.popMatrix();
         }
-        // Depois desenha os fogos (ficam à frente na ordem de desenho)
+        // Then draw only active fires
         for (const fireData of this.fires) {
-            this.scene.pushMatrix();
-            this.scene.translate(fireData.x, 0, fireData.z);
-            fireData.fire.display();
-            this.scene.popMatrix();
+            if (!fireData.fire.isExtinguished) {
+                this.scene.pushMatrix();
+                this.scene.translate(fireData.x, 0, fireData.z);
+                fireData.fire.display();
+                this.scene.popMatrix();
+            }
         }
         this.scene.popMatrix();
     }

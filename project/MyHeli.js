@@ -4,6 +4,7 @@ import { MyHeliWindows } from './MyHeliWindows.js';
 import { MyHeliHelix } from './MyHeliHelix.js';
 import { MyWaterBucket } from './MyWaterBucket.js';
 import { MyHeliLittleHelix } from './MyHeliLittleHelix.js';
+import { MyCylinder } from './MyCylinder.js';
 
 export class MyHeli extends CGFobject {
     constructor(scene) {
@@ -35,12 +36,20 @@ export class MyHeli extends CGFobject {
         this.bucketMaterial.setShininess(20.0);
         this.bucketMaterial.setTexture(new CGFtexture(scene, 'images/bucket.png'));
 
+        this.waterMaterial = new CGFappearance(scene);
+        this.waterMaterial.setAmbient(0.1, 0.3, 0.5, 1.0);
+        this.waterMaterial.setDiffuse(0.2, 0.6, 1.0, 1.0);
+        this.waterMaterial.setSpecular(0.8, 0.8, 0.8, 1.0);
+        this.waterMaterial.setShininess(100.0);
+        this.waterMaterial.setTexture(new CGFtexture(scene, 'images/waterTex.jpg'));
+
         // Objects
         this.body = new MyHeliBody(scene);
         this.helihelix = new MyHeliHelix(scene);
         this.littlehelihelix = new MyHeliLittleHelix(scene);
         this.waterbucket = new MyWaterBucket(scene, 1);
         this.windows = new MyHeliWindows(scene);
+        this.bucketContent = new MyCylinder(scene, 16, 1, 0.8, 0.8, 1.0); 
 
         // Helicopter state variables
         this.position = vec3.fromValues(0, 0, 0);   
@@ -65,7 +74,12 @@ export class MyHeli extends CGFobject {
         this.isLanding = false;                      
         this.isTakingOff = false;                  
         this.isMovingToHeliport = false;             
-        this.isFetchingWater = false;               
+        this.isFetchingWater = false;    
+        this.isExtinguishingFire = false;    
+        
+        // Add these new properties
+        this.isAccelerating = false;
+        this.deceleration = 0.05;
         
         // Bucket status
         this.bucketAttached = false;               
@@ -85,38 +99,61 @@ export class MyHeli extends CGFobject {
         
         // Locations
         this.heliportPosition = vec3.fromValues(0, this.groundLevel, 0);                                       
+
+        // Water fetching state
+        this.isDescendingForWater = false;
+        this.isAscendingWithWater = false;
+        this.waterPickupAltitude = -40;
+        this.lakePosition = vec3.fromValues(-165, 0, -140); 
+        this.lakeRadius = 80; 
+
+        // Extinguishing fire state
+        this.fireRadius = 20;
     }
 
     update(t, delta_t, speedFactor = 1.0) {
         this.updateHelix(delta_t);
         this.updateBucketPosition(t); 
         const effectiveSpeed = this.speed * speedFactor;
+        
+        // Apply deceleration when flying and no input is being given
+        if (this.isFlying && !this.isAccelerating) {
+            this.applyDeceleration(delta_t);
+        }
+        
         if (this.isTakingOff) {
             this.handleTakeOff(delta_t);
         } else if (this.isLanding) {
             this.handleLanding(delta_t);
         } else if (this.isMovingToHeliport) {
             this.moveToHeliport(delta_t, speedFactor);
+        } else if (this.isDescendingForWater) {
+            this.handleWaterPickupDescent(delta_t);
+        } else if (this.isAscendingWithWater) {
+            this.handleWaterAscent(delta_t);
         } else if (this.isFlying) {
             const movement = vec3.create();
             vec3.scale(movement, this.velocity, delta_t * 0.001 * effectiveSpeed);
             vec3.add(this.position, this.position, movement);
             this.updateTilt(delta_t);
         }
-        this.helixRotationAngle += this.helixRotationSpeed;
-      }
+        this.updateTilt(delta_t); 
+        this.isAccelerating = false;
+    }
 
     updateHelix(delta_t) {
         this.helixRotationAngle += this.helixRotationSpeed * delta_t * 0.01;
         if (this.helixRotationAngle > 2 * Math.PI) {
             this.helixRotationAngle -= 2 * Math.PI;
         }
-        if (this.isFlying || this.isTakingOff || this.isFetchingWater  || this.isMovingToHeliport) {
+        
+        if (this.isFlying || this.isTakingOff || this.isFetchingWater || 
+            this.isMovingToHeliport || this.isDescendingForWater || this.isAscendingWithWater) {
             if (this.helixRotationSpeed < this.maxHelixSpeed) {
                 this.helixRotationSpeed = Math.min(this.helixRotationSpeed + 0.1, this.maxHelixSpeed);
             }
         } 
-        else {
+        else if (this.isLanding || (!this.isFlying && !this.isTakingOff)) {
             if (this.helixRotationSpeed > 0) {
                 this.helixRotationSpeed = Math.max(this.helixRotationSpeed - 0.05, 0);
             }
@@ -233,6 +270,7 @@ export class MyHeli extends CGFobject {
     
     accelerate(v, speedFactor = 1.0) {
         if (!this.isFlying) return;
+        this.isAccelerating = true;
         const effectiveAccel = this.acceleration * speedFactor;
         this.speed += v * effectiveAccel;
         this.speed = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.speed));
@@ -241,6 +279,29 @@ export class MyHeli extends CGFobject {
                     Math.sin(this.orientation) * this.speed, 
                     0, 
                     Math.cos(this.orientation) * this.speed);
+        }
+    }
+
+    applyDeceleration(delta_t) {
+        if (Math.abs(this.speed) > 0.01) {
+            const decelerationAmount = this.deceleration * delta_t * 0.01;
+            if (this.speed > 0) {
+                this.speed = Math.max(0, this.speed - decelerationAmount);
+            } else {
+                this.speed = Math.min(0, this.speed + decelerationAmount);
+            }
+            
+            if (this.speed > 0) {
+                vec3.set(this.velocity, 
+                        Math.sin(this.orientation) * this.speed, 
+                        0, 
+                        Math.cos(this.orientation) * this.speed);
+            } else {
+                vec3.set(this.velocity, 0, 0, 0);
+            }
+        } else {
+            this.speed = 0;
+            vec3.set(this.velocity, 0, 0, 0);
         }
     }
 
@@ -254,6 +315,9 @@ export class MyHeli extends CGFobject {
         this.isTakingOff = false;
         this.isMovingToHeliport = false;
         this.isFetchingWater = false;
+        this.isDescendingForWater = false;
+        this.isAscendingWithWater = false;
+        this.isExtinguishingFire = false; 
         this.currentTilt = 0;
         this.helixRotationSpeed = 0;
         this.bucketAttached = false;
@@ -271,7 +335,11 @@ export class MyHeli extends CGFobject {
 
     land() {
         if (!this.isFlying) return;
-        this.isMovingToHeliport = true;
+        if(this.isOverLake() && this.speed < 0.1) {
+            this.startWaterPickup();
+        } else {
+            this.isMovingToHeliport = true;
+        }
         this.isFlying = false;
     }
 
@@ -292,6 +360,111 @@ export class MyHeli extends CGFobject {
         this.bucketAnimationDirection = -1; // Ascending
         this.bucketAnimating = true;
         this.bucketAttached = false;
+    }
+
+    // Check if helicopter is over the lake
+    isOverLake() {
+        const distanceToLake = Math.sqrt(
+            Math.pow(this.position[0] - this.lakePosition[0], 2) + 
+            Math.pow(this.position[2] - this.lakePosition[2], 2)
+        );
+        return distanceToLake <= this.lakeRadius;
+    }
+
+    // Start water pickup sequence
+    startWaterPickup() {
+        if (!this.isOverLake() || this.bucketFilled) {
+            return false; 
+        }
+        
+        this.isDescendingForWater = true;
+        this.isFlying = false;
+        this.speed = 0;
+        vec3.set(this.velocity, 0, 0, 0);
+        return true;
+    }
+
+    // Start ascending with water
+    startAscendingWithWater() {
+        if (!this.isDescendingForWater || this.position[1] > this.waterPickupAltitude + 1) {
+            return false;
+        }
+        
+        this.isDescendingForWater = false;
+        this.isAscendingWithWater = true;
+        this.bucketFilled = true;
+        return true;
+    }
+
+    // Handle water pickup descent
+    handleWaterPickupDescent(delta_t) {
+        if (this.position[1] > this.waterPickupAltitude) {
+            this.position[1] -= this.verticalSpeed * delta_t * 0.01;
+        } else {
+            this.position[1] = this.waterPickupAltitude;
+            if (!this.bucketFilled) {
+                this.bucketFilled = true;
+                this.startAscendingWithWater();
+            }
+        }
+    }
+
+    // Handle ascent with water
+    handleWaterAscent(delta_t) {
+        if (this.position[1] < this.cruisingAltitude) {
+            this.position[1] += this.verticalSpeed * delta_t * 0.01;
+        } else {
+            this.position[1] = this.cruisingAltitude;
+            this.isAscendingWithWater = false;
+            this.isFlying = true;
+        }
+    }
+
+    extinguishFire() { 
+        if (!this.isFlying || !this.bucketFilled) {
+            return false;
+        }
+
+        let heliWorldX = this.position[0];
+        let heliWorldZ = this.position[2];
+        let forestX = heliWorldX + 165;
+        let forestZ = heliWorldZ - 140;
+        let finalX = -forestX/2;
+        let finalZ = -forestZ;
+                
+        if (!this.scene.forest || !this.scene.forest.fires) {
+            return false;
+        }
+        
+        // Check if helicopter is over any active fire
+        let foundActiveFire = false;
+        for (const fireData of this.scene.forest.fires) {
+            if (!fireData.fire.isExtinguished) {
+                const distanceToFire = Math.sqrt(
+                    Math.pow(finalX - fireData.x, 2) + 
+                    Math.pow(finalZ - fireData.z, 2)
+                );                
+                if (distanceToFire <= this.fireRadius) { 
+                    foundActiveFire = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!foundActiveFire) {
+            return false;
+        }
+        
+        this.isExtinguishingFire = true;
+        this.bucketFilled = false;
+        
+        // Extinguish fires in range
+        if (this.scene.forest && typeof this.scene.forest.extinguishFiresInRange === 'function') {
+            const extinguished = this.scene.forest.extinguishFiresInRange(finalX, finalZ, this.fireRadius);
+            return extinguished > 0;
+        }
+        
+        return false;
     }
 
     display() {
@@ -337,9 +510,21 @@ export class MyHeli extends CGFobject {
         this.scene.pushMatrix();
         this.scene.translate(0, -this.bucketVerticalOffset, 0); 
         this.waterbucket.display();
+        
+        // Display bucket content (water or empty)
+        if( this.bucketFilled) {
+            this.scene.pushMatrix();
+            this.scene.translate(0, -14.5, 0); 
+            this.scene.rotate(Math.PI / 2, 1, 0, 0);
+            this.scene.scale(1.5, 1.5, 2); 
+            this.waterMaterial.apply();
+            this.bucketContent.material = this.waterMaterial;
+            this.bucketContent.display();
+            this.scene.popMatrix();
+        }
         this.scene.popMatrix();
     }
         
-        this.scene.popMatrix();
+    this.scene.popMatrix();
     }
 }

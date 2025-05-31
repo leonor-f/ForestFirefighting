@@ -33,6 +33,7 @@ export class MyInterface extends CGFinterface {
         this.gui.add(this.scene, 'numFloors', 1, 10).name('Floors').step(1).onChange((value) => {
             this.scene.building.lateralFloors = value;
             this.scene.building.centralFloors = value + 1;
+            this.scene.helicopter.waterPickupAltitude = -value * 12 -5; 
         }
         );
 
@@ -46,6 +47,9 @@ export class MyInterface extends CGFinterface {
             this.scene.helicopter.speedFactor = value;
         }
         );
+
+        // Checkbox to control the Lake Visibility
+        this.gui.add(this.scene, 'displayLake').name('Display Lake');
 
         //this.scene.setupControls(this.gui);
         this.initKeys();
