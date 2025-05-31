@@ -1,6 +1,19 @@
 # CG 2024/2025
 
-## Group T03G03
+## Class: T03 | Group: G03
+
+### Group members
+| Name             | Number    | E-Mail            |
+| ---------------- | --------- | ------------------|
+| Leonor Santos    | 202204354 | up202204354@up.pt |
+| Miguel Mateus    | 202206944 | up202206944@up.pt |
+
+### Observations
+- All main features described in the assignment have been implemented.
+- Additionally, a feature was implemented to increase the number of floors in the firefighters' building.
+
+
+## Screenshots of the implemented features
 
 ### 1.2 Adding Panoramas
 

@@ -132,8 +132,17 @@ export class MyBuilding extends CGFobject {
             this.scene.pushMatrix();
             this.scene.translate(0, totalHeight + 0.1, -depth/2);
             this.scene.scale(width * 0.2, 1, width * 0.2);
+
+            // Enable blending for transparency
+            this.scene.gl.enable(this.scene.gl.BLEND);
+            this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA, this.scene.gl.ONE, this.scene.gl.ONE);
+
             this.helipadMaterial.apply();
             this.circle.display();
+
+            // Disable blending after rendering
+            this.scene.gl.disable(this.scene.gl.BLEND);
+            
             this.scene.popMatrix();
         }
     }
