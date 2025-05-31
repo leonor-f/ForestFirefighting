@@ -25,6 +25,7 @@ export class MyFire extends CGFobject {
         this.flameBaseAngles = [];
         this.flameRotationSpeeds = [];
         this.fireAnimationSpeed = 20; // Movimento rápido
+        this.isExtinguished = false;
         this.time = 0;
         this.initFlames();
         this.initMaterials();
@@ -105,5 +106,14 @@ export class MyFire extends CGFobject {
         this.scene.gl.disable(this.scene.gl.BLEND);
 
         this.scene.popMatrix();
+    }
+
+    extinguish() {
+        this.isExtinguished = true;
+        console.log(`Fire at position (${this.x}, ${this.z}) has been extinguished!`);
+    }
+    reignite() {
+        this.isExtinguished = false;
+        console.log(`Fire at position (${this.x}, ${this.z}) has been reignited!`);
     }
 }

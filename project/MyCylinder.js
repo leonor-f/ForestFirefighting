@@ -62,16 +62,40 @@ export class MyCylinder extends CGFobject {
                 );
             }
         }
+
+        // Add vertices for top and bottom circle centers
+        const topCenterIndex = this.vertices.length / 3;
+        this.vertices.push(0, 1, 0); // Top center
+        this.normals.push(0, 1, 0);
+        this.texCoords.push(0.5, 0.5);
+
+        const bottomCenterIndex = this.vertices.length / 3;
+        this.vertices.push(0, 0, 0); // Bottom center
+        this.normals.push(0, -1, 0);
+        this.texCoords.push(0.5, 0.5);
         
         // Generate indices
+        // Side faces
         for (let stack = 0; stack < this.stacks; stack++) {
             for (let slice = 0; slice < this.slices; slice++) {
                 const first = stack * (this.slices + 1) + slice;
                 const second = first + this.slices + 1;
                 
-                this.indices.push(first, second, first + 1);
-                this.indices.push(second, second + 1, first + 1);
+                // Counter-clockwise winding for outward-facing normals
+                this.indices.push(first, first + 1, second);
+                this.indices.push(second, first + 1, second + 1);
             }
+        }
+
+        // Top face triangles
+        for (let slice = 0; slice < this.slices; slice++) {
+            const topRingStart = (this.stacks) * (this.slices + 1);
+            this.indices.push(topCenterIndex, topRingStart + slice, topRingStart + (slice + 1) % this.slices);
+        }
+
+        // Bottom face triangles
+        for (let slice = 0; slice < this.slices; slice++) {
+            this.indices.push(bottomCenterIndex, (slice + 1) % this.slices, slice);
         }
         
         this.primitiveType = this.scene.gl.TRIANGLES;

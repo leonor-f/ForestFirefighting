@@ -27,25 +27,29 @@ export class MyInterface extends CGFinterface {
         this.gui.add(this.scene, 'displayPanorama').name('Panorama');
 
         // Checkbox to control the Building Visibility
-        this.gui.add(this.scene, 'displayBuilding').name('Display Building');
+        this.gui.add(this.scene, 'displayBuilding').name('Building');
 
         // Slider to control the Number of Floors
-        this.gui.add(this.scene, 'numFloors', 1, 10).name('Floors').step(1).onChange((value) => {
+        this.gui.add(this.scene, 'numFloors', 1, 10).name('Building floors').step(1).onChange((value) => {
             this.scene.building.lateralFloors = value;
             this.scene.building.centralFloors = value + 1;
+            this.scene.helicopter.waterPickupAltitude = -value * 12 -5; 
         }
         );
 
         // Checkbox to control the Forest Visibility
-        this.gui.add(this.scene, 'displayForest').name('Display Forest');
+        this.gui.add(this.scene, 'displayForest').name('Forest');
 
         // Checkbox to control the Helicopter Visibility
         this.gui.add(this.scene, 'displayHelicopter').name('Helicopter');
 
-        this.gui.add(this.scene, 'speedFactor', 1, 3).name('Speed').step(0.1).onChange((value) => {
+        this.gui.add(this.scene, 'speedFactor', 1, 3).name('Helicopter speed').step(0.1).onChange((value) => {
             this.scene.helicopter.speedFactor = value;
         }
         );
+
+        // Checkbox to control the Lake Visibility
+        this.gui.add(this.scene, 'displayLake').name('Lake');
 
         //this.scene.setupControls(this.gui);
         this.initKeys();

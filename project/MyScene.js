@@ -5,6 +5,7 @@ import { MyPanorama } from './MyPanorama.js';
 import { MyBuilding } from './MyBuilding.js';
 import { MyForest } from './MyForest.js';
 import { MyHeli } from './MyHeli.js';
+import { MyLake } from './MyLake.js';
 
 /**
  * MyScene
@@ -45,6 +46,7 @@ export class MyScene extends CGFscene {
     this.speedFactor = 2.0;
     this.lastUpdateTime = 0;
     this.helicopter = new MyHeli(this);
+    this.lake = new MyLake(this, 80);
 
     this.displayAxis = false;
     this.displaySphere = false;
@@ -53,6 +55,7 @@ export class MyScene extends CGFscene {
     this.displayBuilding = true;
     this.displayForest = true;
     this.displayHelicopter = true; 
+    this.displayLake = true;
     this.scaleFactor = 1.0;
     this.scaleFactorSpeed = 1.0;
   }
@@ -139,6 +142,10 @@ export class MyScene extends CGFscene {
     if (this.gui.isKeyPressed("KeyL")) {
       this.helicopter.land();
     }
+    // O - Extinguish the fire
+    if (this.gui.isKeyPressed("KeyO")) {
+      this.helicopter.extinguishFire();
+    }
   }
 
   update(t) {
@@ -223,6 +230,13 @@ export class MyScene extends CGFscene {
       this.translate(165, 20 + 12 * this.numFloors, 0);
       this.helicopter.display();
       this.popMatrix();
-    }    
+    }  
+
+    if (this.displayLake) {
+      this.pushMatrix();
+      this.translate(-140, 1, 0);
+      this.lake.display();
+      this.popMatrix();
+    }  
   }
 }
