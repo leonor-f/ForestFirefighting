@@ -109,11 +109,20 @@ export class MyHeli extends CGFobject {
 
         // Extinguishing fire state
         this.fireRadius = 20;
+
+        // Water drop animation
+        this.waterDropping = false;
+        this.waterDropPosition = vec3.create();
+        this.waterDropVelocity = vec3.create();
+        this.waterDropGravity = -0.5;
+        this.waterDropTargetPosition = vec3.create();
+        this.dropStartPosition = vec3.create();
     }
 
     update(t, delta_t, speedFactor = 1.0) {
         this.updateHelix(delta_t);
         this.updateBucketPosition(t); 
+        this.updateWaterDrop(delta_t); // Add this line
         const effectiveSpeed = this.speed * speedFactor;
         
         // Apply deceleration when flying and no input is being given
@@ -176,6 +185,34 @@ export class MyHeli extends CGFobject {
                 this.bucketAnimating = false;
             }
         }
+    }
+
+    updateWaterDrop(delta_t) {
+        if (!this.waterDropping) return;
+        
+        // Apply gravity
+        this.waterDropVelocity[1] += this.waterDropGravity * delta_t * 0.01;
+        
+        // Update position
+        const movement = vec3.create();
+        vec3.scale(movement, this.waterDropVelocity, delta_t * 0.01);
+        vec3.add(this.waterDropPosition, this.waterDropPosition, movement);
+        if (this.waterDropPosition[1] <= this.waterPickupAltitude) {
+            this.waterDropPosition[1] = this.waterPickupAltitude;
+            this.completeWaterDrop();
+        }
+    }
+
+    completeWaterDrop() {
+        this.waterDropping = false;
+        this.isExtinguishingFire = true;
+        
+        if (this.scene.forest && typeof this.scene.forest.extinguishFiresInRange === 'function') {
+            this.scene.forest.extinguishFiresInRange(this.targetFireX, this.targetFireZ, 8);
+        }
+        
+        // Reset water drop position
+        vec3.set(this.waterDropPosition, 0, 0, 0);
     }
 
     handleTakeOff(delta_t) {
@@ -322,6 +359,11 @@ export class MyHeli extends CGFobject {
         this.helixRotationSpeed = 0;
         this.bucketAttached = false;
         this.bucketFilled = false;
+        
+        // Reset water drop animation
+        this.waterDropping = false;
+        vec3.set(this.waterDropPosition, 0, 0, 0);
+        vec3.set(this.waterDropVelocity, 0, 0, 0);
     }
 
     takeOff() {
@@ -421,7 +463,7 @@ export class MyHeli extends CGFobject {
     }
 
     extinguishFire() { 
-        if (!this.isFlying || !this.bucketFilled) {
+        if (!this.isFlying || !this.bucketFilled || this.waterDropping) {
             return false;
         }
 
@@ -438,6 +480,7 @@ export class MyHeli extends CGFobject {
         
         // Check if helicopter is over any active fire
         let foundActiveFire = false;
+        let targetFirePosition = null;
         for (const fireData of this.scene.forest.fires) {
             if (!fireData.fire.isExtinguished) {
                 const distanceToFire = Math.sqrt(
@@ -446,25 +489,48 @@ export class MyHeli extends CGFobject {
                 );                
                 if (distanceToFire <= this.fireRadius) { 
                     foundActiveFire = true;
+                    targetFirePosition = vec3.fromValues(fireData.x, 0, fireData.z);
                     break;
                 }
             }
         }
         
-        if (!foundActiveFire) {
+        if (!foundActiveFire || !targetFirePosition) {
             return false;
         }
         
-        this.isExtinguishingFire = true;
-        this.bucketFilled = false;
+        // Start water drop animation
+        this.startWaterDrop(targetFirePosition, finalX, finalZ);
         
-        // Extinguish fires in range
-        if (this.scene.forest && typeof this.scene.forest.extinguishFiresInRange === 'function') {
-            const extinguished = this.scene.forest.extinguishFiresInRange(finalX, finalZ, this.fireRadius);
-            return extinguished > 0;
-        }
+        return true;
+    }
+
+    startWaterDrop(targetFirePosition, finalX, finalZ) {
+        this.waterDropping = true;
+        this.bucketFilled = false; 
         
-        return false;
+        vec3.set(this.dropStartPosition, 
+            this.position[0], 
+            this.position[1] - this.bucketVerticalOffset - 14.5, 
+            this.position[2]
+        );
+        vec3.copy(this.waterDropPosition, this.dropStartPosition);
+        
+        let worldTargetX = targetFirePosition[0] * 2 - 165;
+        let worldTargetZ = targetFirePosition[2] + 140;
+        
+        vec3.set(this.waterDropTargetPosition, worldTargetX, 0, worldTargetZ);
+        
+        // Calculate initial velocity toward target
+        const direction = vec3.create();
+        vec3.subtract(direction, this.waterDropTargetPosition, this.waterDropPosition);
+        direction[1] = 0; 
+        vec3.normalize(direction, direction);
+        vec3.scale(this.waterDropVelocity, direction, 0.3); 
+        this.waterDropVelocity[1] = 0;
+        
+        this.targetFireX = targetFirePosition[0]; 
+        this.targetFireZ = targetFirePosition[2]; 
     }
 
     display() {
@@ -504,27 +570,38 @@ export class MyHeli extends CGFobject {
         this.littlehelihelix.display();
         this.scene.popMatrix();
 
-    // Display water bucket
-    if (this.bucketAttached || this.bucketAnimating) {
-        this.bucketMaterial.apply();
-        this.scene.pushMatrix();
-        this.scene.translate(0, -this.bucketVerticalOffset, 0); 
-        this.waterbucket.display();
-        
-        // Display bucket content (water or empty)
-        if( this.bucketFilled) {
+        // Display water bucket
+        if (this.bucketAttached || this.bucketAnimating) {
+            this.bucketMaterial.apply();
             this.scene.pushMatrix();
-            this.scene.translate(0, -14.5, 0); 
+            this.scene.translate(0, -this.bucketVerticalOffset, 0); 
+            this.waterbucket.display();
+            
+            // Display bucket content (water or empty) - only if not dropping
+            if (this.bucketFilled && !this.waterDropping) {
+                this.scene.pushMatrix();
+                this.scene.translate(0, -14.5, 0); 
+                this.scene.rotate(Math.PI / 2, 1, 0, 0);
+                this.scene.scale(1.5, 1.5, 2); 
+                this.waterMaterial.apply();
+                this.bucketContent.material = this.waterMaterial;
+                this.bucketContent.display();
+                this.scene.popMatrix();
+            }
+            this.scene.popMatrix();
+        }
+        
+        this.scene.popMatrix();
+        
+        // Display falling water cylinder (outside helicopter transform)
+        if (this.waterDropping) {
+            this.scene.pushMatrix();
+            this.scene.translate(this.waterDropPosition[0], this.waterDropPosition[1], this.waterDropPosition[2]);
             this.scene.rotate(Math.PI / 2, 1, 0, 0);
-            this.scene.scale(1.5, 1.5, 2); 
+            this.scene.scale(1.5, 1.5, 2);
             this.waterMaterial.apply();
-            this.bucketContent.material = this.waterMaterial;
             this.bucketContent.display();
             this.scene.popMatrix();
         }
-        this.scene.popMatrix();
-    }
-        
-    this.scene.popMatrix();
     }
 }

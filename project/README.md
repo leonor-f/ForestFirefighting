@@ -34,9 +34,12 @@
 - The helicopter must be positioned over the lake to fill its water bucket.
 
 ### Interactions
-- To extinguish the fire, the user must pilot the helicopter to the lake, collect water, and then drop it over the burning areas.
+- To extinguish the fire, the user must pilot the helicopter to the lake, stop, collect water, and then drop it over the burning areas.
 - The fire is gradually extinguished in the areas hit by water, with visual feedback.
 - The cycle can be repeated to put out all fire sources.
+
+### Additional Development
+- The additional development we choose as the "B", where you can see the heliport change from its normal form with an "H" in the middle to an "UP" or a "DOWN" depending on its actions.
 
 ### Graphical Interface
 - The interface was designed to look as realistic and visually appealing as possible, providing an immersive experience for the user.
@@ -61,13 +64,17 @@
 
 ### 4. Helicopter
 
-![Screenshot 5](screenshots/project-t03g03-4a.png)
-![Screenshot 6](screenshots/project-t03g03-4b.png)
+![Screenshot 5](screenshots/project-t03g03-4.png)
+![Screenshot 6](screenshots/project-t03g03-5.png)
 
 ### 5. Water and Fire
 
-![Screenshot 7](screenshots/project-t03g03-5.png)
-
-### 5. Flame Ripple
-
 ![Screenshot 7](screenshots/project-t03g03-6.png)
+
+### 6. Flame Ripple
+
+![Screenshot 8](screenshots/project-t03g03-7.png)
+
+### 7. Additional Developments
+
+![Screenshot 9](screenshots/project-t03g03-8.png)

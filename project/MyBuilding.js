@@ -68,10 +68,9 @@ export class MyBuilding extends CGFobject {
     }
 
     updateHelipadDisplay(deltaTime) {
-        // Update shader uniforms instead of switching materials
         this.timeFactor = (this.timeFactor || 0) + deltaTime;
         
-        let state = 0; // normal
+        let state = 0; 
         if (this.helipadState === 'takeoff') {
             state = 1;
         } else if (this.helipadState === 'landing') {
@@ -79,9 +78,9 @@ export class MyBuilding extends CGFobject {
         }
         
         this.helipadShader.setUniformsValues({
-            uTimeFactor: this.timeFactor * 0.01,
+            uTimeFactor: this.timeFactor * 0.001,
             uState: state,
-            uBlinkInterval: 1
+            uBlinkInterval: 2
         });
         
         // Update light shader

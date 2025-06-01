@@ -12,7 +12,7 @@ uniform float uBlinkInterval;
 varying vec2 vTextureCoord;
 
 void main() {
-    vec4 normalTexture = texture2D(uSampler, vTextureCoord);   // helipad.png
+    vec4 normalTexture = texture2D(uSampler, vTextureCoord);   // helipad.png (H)
     vec4 upTexture = texture2D(uSampler2, vTextureCoord);      // helipadUP.png
     vec4 downTexture = texture2D(uSampler3, vTextureCoord);    // helipadDOWN.png
     
@@ -20,23 +20,18 @@ void main() {
         // Normal state - just show normal texture
         gl_FragColor = normalTexture;
     } else {
-        // Calculate blink factor using sin wave
+        // Calculate smooth transition factor using sin wave
         float blinkFactor = sin(uTimeFactor * uBlinkInterval);
         
+        // Convert sin wave (-1 to 1) to mix factor (0 to 1)
+        float mixFactor = (blinkFactor + 1.0) * 0.5;
+        
         if (uState == 1) {
-            // Takeoff - alternate between normal and UP
-            if (blinkFactor > 0.0) {
-                gl_FragColor = upTexture;
-            } else {
-                gl_FragColor = normalTexture;
-            }
+            // Takeoff - smooth mix between normal (H) and UP textures
+            gl_FragColor = mix(normalTexture, upTexture, mixFactor);
         } else if (uState == 2) {
-            // Landing - alternate between normal and DOWN
-            if (blinkFactor > 0.0) {
-                gl_FragColor = downTexture;
-            } else {
-                gl_FragColor = normalTexture;
-            }
+            // Landing - smooth mix between normal (H) and DOWN textures
+            gl_FragColor = mix(normalTexture, downTexture, mixFactor);
         }
     }
 }
