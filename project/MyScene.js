@@ -150,12 +150,29 @@ export class MyScene extends CGFscene {
 
   update(t) {
     if (this.lastUpdateTime === 0) {
-      this.lastUpdateTime = t;
-      return;
+        this.lastUpdateTime = t;
+        return;
     }
     const delta_t = t - this.lastUpdateTime;
     this.lastUpdateTime = t;
+    
     this.helicopter.update(t, delta_t, this.speedFactor);
+    
+    if (this.building) {
+        let newState = 'normal';
+        
+        if (this.helicopter.isTakingOff) {
+            newState = 'takeoff';
+        } else if (this.helicopter.isLanding) {
+            newState = 'landing';
+        }
+        if (this.building.helipadState !== newState) {
+            this.building.setHelipadState(newState);
+        }
+        
+        this.building.updateHelipadDisplay(delta_t);
+    }
+    
     if (this.forest && typeof this.forest.update === 'function') {
         this.forest.update(delta_t);
     }
