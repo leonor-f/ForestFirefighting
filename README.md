@@ -1,17 +1,13 @@
-# CG 2024/2025
+# Forest Firefighting
 
-## Class: T03 | Group: G03
+## Project description
+**Forest Firefighting** is a 3D computer graphics simulation that visualizes an emergency firefighting scenario in a forested environment. The scene includes a **burning forest, a fire station building, a lake, and a helicopter** that performs water drops to extinguish the flames.
 
-## Group Members
-| Name           | Number    | E-Mail              |
-| -------------- | --------- | ------------------- |
-| Leonor Santos  | 202204354 | up202204354@up.pt   |
-| Miguel Mateus  | 202206944 | up202206944@up.pt   |
+The goal of the project is to demonstrate real-time graphics rendering, basic physical interactions, and animation within a dynamic, interactive environment. The simulation showcases how natural resources (like water) can be used in emergency operations and emphasizes coordination between terrain, structures, and aerial units.
 
-## Observations
-- All main features described in the assignment have been implemented.
-- An **additional feature** was added to allow increasing the number of floors in the firefighters' building through a slider in the GUI.
+#### Grade: 17/20
 
+## Core elements
 ### Helicopter
 - The helicopter can be controlled by the user.
 - Its main features include taking off, landing, collecting water from the lake, and dropping it over the fire.
@@ -38,23 +34,23 @@
 - The fire is gradually extinguished in the areas hit by water, with visual feedback.
 - The cycle can be repeated to put out all fire sources.
 
-### Additional Development
-- The additional development we choose as the "B", where you can see the heliport change from its normal form with an "H" in the middle to an "UP" or a "DOWN" depending on its actions.
+### Additional development
+- The heliport changes from its normal form with an "H" in the middle to an "UP" or a "DOWN" depending on its actions.
 
-### Graphical Interface
+### Graphical interface
 - The interface was designed to look as realistic and visually appealing as possible, providing an immersive experience for the user.
 
 > For more details, explore the project's graphical interface (GUI) and the [report](https://docs.google.com/document/d/e/2PACX-1vS1uzAAxmUxt5PvMJ2I1kwschqIaN-l-KsVdaDxgk95o2Ro0mFuEfFtkPNTrQiACPebo1UjZ3j-01SU/pub) for additional instructions.
 
 
-## Screenshots of the Implemented Features
+## Screenshots of the implemented features
 
-### 1.2 Adding Panoramas
+### 1.2 Adding panoramas
 
 ![Screenshot 1](screenshots/project-t03g03-1a.png)
 ![Screenshot 2](screenshots/project-t03g03-1b.png)
 
-### 2. Firefighters Building
+### 2. Firefighters building
 
 ![Screenshot 3](screenshots/project-t03g03-2.png)
 
@@ -67,14 +63,14 @@
 ![Screenshot 5](screenshots/project-t03g03-4.png)
 ![Screenshot 6](screenshots/project-t03g03-5.png)
 
-### 5. Water and Fire
+### 5. Water and fire
 
 ![Screenshot 7](screenshots/project-t03g03-6.png)
 
-### 6. Flame Ripple
+### 6. Flame ripple
 
 ![Screenshot 8](screenshots/project-t03g03-7.png)
 
-### 7. Additional Developments
+### 7. Additional developments
 
 ![Screenshot 9](screenshots/project-t03g03-8.png)
